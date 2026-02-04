@@ -5,8 +5,8 @@ TypedDict for data shapes, Callable aliases for pluggable behavior, and small ty
 
 ---
 
-## Generation Rules
-
+## Rules
+- **Do not generate documentation unless explicitly requested.**
 - **Prefer functions over classes** unless a dataclass is needed for clarity.
 - **Emit TypedDicts for shared data shapes** and name them with `Data`, `DTO`, or `Record`.
 - **Emit Callable type aliases** for pluggable behavior and name them with `Fn` or `Handler`.

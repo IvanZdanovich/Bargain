@@ -5,6 +5,9 @@ Follow these rules to produce code that is **type safe**, **class minimal**, **f
 **. Use `TypedDict` for data shapes, `Callable` type aliases for pluggable behavior, and compose small pure functions
 into typed pipelines. Validate external I/O at boundaries.
 
+**Do not generate documentation unless explicitly requested.** Any request to produce docs must be explicit in the user
+prompt.
+
 ---
 
 ## TypedDict Rules
@@ -57,24 +60,30 @@ into typed pipelines. Validate external I/O at boundaries.
 
 ---
 
+## Runtime Validation and Hot Path Rules
+
+- **Validate only at I/O boundaries.**
+    - Where: websocket/parsers, REST responses, user input.
+- **Use lightweight validators for hot paths.**
+    - Minimal checks (presence and type) in hot loops; full validation at ingestion.
+- **Prefer dict/TypedDict in hot loops.**
+    - Minimal allocation and attribute lookup overhead.
+- **Use pydantic or explicit parsing for external inputs.**
+    - Convert validated pydantic models into TypedDicts before entering hot paths.
+- **Avoid runtime reflection and heavy introspection in hot code.**
+
+---
+
 ## Naming Conventions Rules
 
 - **Files and modules:** `snake_case` and reflect domain area.
-    - Examples: `market_ingest.py`, `risk_models.py`, `executors.py`.
 - **TypedDict and dataclass types:** `PascalCase` and end with `Data`, `DTO`, or `Record`.
-    - Examples: `MarketTickData`, `OrderDTO`.
 - **Callable type aliases:** `PascalCase` and end with `Fn` or `Handler`.
-    - Examples: `PriceProviderFn`, `OrderExecutorFn`.
 - **Functions:** `snake_case` and start with a verb describing action.
-    - Examples: `parse_order`, `compute_position_size`, `send_order`.
 - **Variables:** `snake_case` and be descriptive; avoid single-letter names except in short loops.
-    - Examples: `tick`, `order_id`, `position_size`.
 - **Constants:** `UPPER_SNAKE_CASE`.
-    - Examples: `MAX_POSITION_SIZE`.
 - **Tests:** mirror module names and use `test_` prefix for functions.
-    - Examples: `tests/test_market_ingest.py::test_parse_tick`.
 - **Directories:** group by domain, not by pattern.
-    - Examples: `feeds/`, `strategies/`, `executors/`, `systems/`.
 
 ---
 
