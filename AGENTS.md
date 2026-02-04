@@ -93,7 +93,7 @@ prompt.
 |----------------------------------------|---------------------------------------------------|-------------:|------------------------------------------------|
 | **TypedDict data contracts**           | Structured messages, ECS components, market ticks |          Low | Strong with mypy/pyright                       |
 | **Function based interfaces**          | Pluggable strategies, risk models, executors      |   Negligible | Signature checked by static type checkers      |
-| **Functional pipelines and contracts** | Composable systems, event driven flows            |          Low | End to end type flow; catches mismatches early |
+| **Functional pipelines and contracts** | Composable systems, event-driven flows            |          Low | End-to-end type flow; catches mismatches early |
 
 ---
 
