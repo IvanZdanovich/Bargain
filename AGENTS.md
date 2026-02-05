@@ -6,10 +6,6 @@ This document defines strict, minimal rules for AI agents that generate or modif
 Follow these rules to produce code that is **type safe**, **class minimal**, **fast in hot paths**, **extensible**, and
 **auditable**.
 
-**Policy:** Do not generate user-facing documentation, README updates, or design docs unless the user explicitly
-requests documentation and specifies scope and format. Any generated documentation must be placed in `docs/` and require
-human review before merging.
-
 ---
 
 ## Related Documents
@@ -22,6 +18,7 @@ human review before merging.
 
 ## Core Principles
 
+- **No documentation by default:** Do not generate docs unless explicitly requested by the user with scope and format.
 - **Contracts first:** Centralize all public `TypedDict` and `Callable` aliases in `src/types.py`. Import types from
   there.
 - **Function-first design:** Prefer small pure functions and typed pipelines over class hierarchies. Use dataclasses
@@ -67,12 +64,8 @@ human review before merging.
 
 ## Naming Conventions
 
-- **Modules and files:** `snake_case` (e.g., `market_ingest.py`, `risk_controller.py`).
-- **Types:** `PascalCase` with suffix `Data`/`DTO`/`Record`.
-- **Callables:** `PascalCase` with suffix `Fn`/`Handler`.
-- **Functions:** `snake_case`, start with a verb (e.g., `parse_tick`, `compute_atr`).
-- **Variables:** `snake_case`, descriptive.
-- **Constants:** `UPPER_SNAKE_CASE`.
+- Follow [docs/naming-conventions.md](/docs/naming-conventions.md) for all files, types, functions, variables, constants,
+  and folders.
 
 ---
 
