@@ -1,0 +1,2 @@
+"""Bargain Trading Framework."""
+
