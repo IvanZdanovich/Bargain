@@ -32,6 +32,19 @@ class ATRState:
     tr_window: RollingWindow
 
 
+@dataclass
+class RSIState:
+    """State for streaming RSI computation."""
+
+    period: int
+    value: Decimal
+    prev_close: Decimal | None
+    gains: RollingWindow
+    losses: RollingWindow
+    avg_gain: Decimal
+    avg_loss: Decimal
+
+
 # === Batch Indicator Functions ===
 
 
@@ -295,6 +308,100 @@ def update_atr_streaming(
     )
 
 
+def init_rsi_state(period: int, initial_price: Decimal) -> RSIState:
+    """
+    Initialize RSI state for streaming.
+
+    Args:
+        period: RSI period.
+        initial_price: Initial price value.
+
+    Returns:
+        RSI state.
+    """
+    return RSIState(
+        period=period,
+        value=Decimal("50"),
+        prev_close=initial_price,
+        gains=RollingWindow(period),
+        losses=RollingWindow(period),
+        avg_gain=Decimal(0),
+        avg_loss=Decimal(0),
+    )
+
+
+def update_rsi_streaming(state: RSIState, new_price: Decimal) -> RSIState:
+    """
+    Update RSI state with new price (streaming).
+
+    Args:
+        state: Current RSI state.
+        new_price: New price.
+
+    Returns:
+        Updated RSI state.
+    """
+    if state.prev_close is None:
+        return RSIState(
+            period=state.period,
+            value=Decimal("50"),
+            prev_close=new_price,
+            gains=state.gains,
+            losses=state.losses,
+            avg_gain=Decimal(0),
+            avg_loss=Decimal(0),
+        )
+
+    # Calculate price change
+    change = new_price - state.prev_close
+    gain = change if change > 0 else Decimal(0)
+    loss = abs(change) if change < 0 else Decimal(0)
+
+    # Update rolling windows
+    state.gains.append(gain)
+    state.losses.append(loss)
+
+    # Calculate RSI
+    if not state.gains.is_full():
+        # Not enough data yet
+        return RSIState(
+            period=state.period,
+            value=Decimal("50"),
+            prev_close=new_price,
+            gains=state.gains,
+            losses=state.losses,
+            avg_gain=Decimal(0),
+            avg_loss=Decimal(0),
+        )
+
+    # Use Wilder's smoothing method
+    if state.avg_gain == 0 and state.avg_loss == 0:
+        # First calculation - simple average
+        avg_gain = state.gains.mean()
+        avg_loss = state.losses.mean()
+    else:
+        # Subsequent calculations - smoothed
+        avg_gain = (state.avg_gain * (state.period - 1) + gain) / state.period
+        avg_loss = (state.avg_loss * (state.period - 1) + loss) / state.period
+
+    # Calculate RSI
+    if avg_loss == 0:
+        rsi_value = Decimal("100")
+    else:
+        rs = avg_gain / avg_loss
+        rsi_value = Decimal("100") - (Decimal("100") / (Decimal("1") + rs))
+
+    return RSIState(
+        period=state.period,
+        value=rsi_value,
+        prev_close=new_price,
+        gains=state.gains,
+        losses=state.losses,
+        avg_gain=avg_gain,
+        avg_loss=avg_loss,
+    )
+
+
 # === Volatility Indicators ===
 
 
@@ -356,4 +463,73 @@ def compute_log_return(current: Decimal, previous: Decimal) -> Decimal:
     if previous == 0 or current == 0:
         return Decimal(0)
     return (current / previous).ln()
+
+
+# === RSI (Relative Strength Index) ===
+
+
+def compute_rsi(prices: Sequence[Decimal], period: int = 14) -> list[Decimal]:
+    """
+    Compute Relative Strength Index (batch).
+
+    Args:
+        prices: Price series.
+        period: RSI period (default 14).
+
+    Returns:
+        RSI values (same length as input, first period values are partial).
+    """
+    if not prices or period <= 0:
+        return []
+
+    if len(prices) < 2:
+        return [Decimal("50")] * len(prices)
+
+    result: list[Decimal] = []
+
+    # Calculate price changes
+    gains: list[Decimal] = []
+    losses: list[Decimal] = []
+
+    for i in range(1, len(prices)):
+        change = prices[i] - prices[i - 1]
+        if change > 0:
+            gains.append(change)
+            losses.append(Decimal(0))
+        else:
+            gains.append(Decimal(0))
+            losses.append(abs(change))
+
+    # First RSI uses simple average
+    if len(gains) < period:
+        return [Decimal("50")] * len(prices)
+
+    avg_gain = sum(gains[:period]) / period
+    avg_loss = sum(losses[:period]) / period
+
+    # Calculate first RSI
+    if avg_loss == 0:
+        rsi = Decimal("100")
+    else:
+        rs = avg_gain / avg_loss
+        rsi = Decimal("100") - (Decimal("100") / (Decimal("1") + rs))
+
+    result = [Decimal("50")] * period  # Pad with neutral RSI
+    result.append(rsi)
+
+    # Subsequent RSI uses smoothed averages (Wilder's smoothing)
+    for i in range(period, len(gains)):
+        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+
+        if avg_loss == 0:
+            rsi = Decimal("100")
+        else:
+            rs = avg_gain / avg_loss
+            rsi = Decimal("100") - (Decimal("100") / (Decimal("1") + rs))
+
+        result.append(rsi)
+
+    return result
+
 

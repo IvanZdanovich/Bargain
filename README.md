@@ -1,8 +1,8 @@
 # Bargain
 
-# **Data Controller — Implementation Summary**
+# Data Controller — Implementation Summary
 
-## **Module Structure**
+## Module Structure
 
 ```
 src/
@@ -33,8 +33,6 @@ examples/
 ├── event_bus_integration.py     # Strategy/storage integration
 └── replay_backtest.py           # Replay mode example
 ```
-
----
 
 ## **Key Features Implemented**
 
@@ -87,9 +85,52 @@ examples/
 
 ---
 
-## **Test Coverage**
-- **112 tests passing**  
-- Full unit coverage for pure functions  
-- Integration tests for event bus  
-- Replay tests using fixture data  
+# Advanced Data Preparation Subsystem
 
+## Overview
+
+The Advanced Data Preparation subsystem transforms raw, normalized market data into enriched, multi-timeframe, and feature-rich series optimized for strategy execution. It bridges the Data Controller and the Strategy Engine, ensuring downstream components receive clean, aligned, and computationally efficient data.
+
+## Features
+
+- **Multi-timeframe resampling**: Tick → 1s → 1m → 5m → 1h → 1d
+- **Technical indicators**: EMA, SMA, WMA, VWAP, ATR, volatility measures
+- **Transforms**: Heiken Ashi, log returns, percentage returns, normalization
+- **Rolling windows**: O(1) append with efficient statistics computation
+- **Streaming support**: Incremental updates optimized for hot loops
+- **Deterministic behavior**: Identical results across live, batch, and replay modes
+
+## Architecture
+
+### Module Structure
+
+```
+src/advanced_prep/
+├── __init__.py          # Public API exports
+├── pipelines.py         # Multi-timeframe orchestration
+├── resampling.py        # Tick → candle aggregation
+├── indicators.py        # EMA, ATR, VWAP, etc.
+├── transforms.py        # Heiken Ashi, returns, normalization
+├── rolling.py           # Rolling windows, caches, ring buffers
+├── state.py             # Stateful streaming helpers
+├── registry.py          # Indicator registration & metadata
+└── utils.py             # Shared helpers
+```
+
+### Data Flow
+
+```
+Data Controller → Normalized Ticks → Advanced Prep → Strategy Engine
+                                    ↓
+                          Multi-Timeframe Pipeline
+                                    ↓
+                    ┌───────────────┴───────────────┐
+                    ↓                               ↓
+              Resampling                       Indicators
+                    ↓                               ↓
+            OHLCV Candles                     EMA, ATR, etc.
+                    ↓                               ↓
+              Transforms                      Rolling Stats
+                    ↓                               ↓
+              Heiken Ashi                     Multi-TF Snapshot
+```

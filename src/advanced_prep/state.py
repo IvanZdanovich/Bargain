@@ -8,7 +8,7 @@ for efficient streaming updates.
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from src.advanced_prep.indicators import ATRState, EMAState
+from src.advanced_prep.indicators import ATRState, EMAState, RSIState
 from src.advanced_prep.rolling import RollingWindow
 from src.types import HeikenAshiData, ResampledCandleData
 
@@ -21,6 +21,7 @@ class IndicatorStates:
     ema_slow: EMAState | None = None
     ema_signal: EMAState | None = None
     atr: ATRState | None = None
+    rsi: RSIState | None = None
     rolling_window: RollingWindow | None = None
 
 
@@ -212,6 +213,9 @@ def get_indicator_values(state: TimeframeState) -> dict[str, Decimal]:
 
     if state.indicators.atr and state.indicators.atr.tr_window.is_full():
         indicators["atr"] = state.indicators.atr.value
+
+    if state.indicators.rsi and state.indicators.rsi.gains.is_full():
+        indicators["rsi"] = state.indicators.rsi.value
 
     if state.indicators.rolling_window and state.indicators.rolling_window.is_full():
         indicators["rolling_mean"] = state.indicators.rolling_window.mean()

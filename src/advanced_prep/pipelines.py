@@ -173,6 +173,12 @@ class MultiTimeframePipeline:
                 tf_state.indicators.atr, high, low, close
             )
 
+        # Update RSI
+        if tf_state.indicators.rsi:
+            tf_state.indicators.rsi = update_rsi_streaming(
+                tf_state.indicators.rsi, close
+            )
+
         # Update rolling window
         if tf_state.indicators.rolling_window:
             tf_state.indicators.rolling_window.append(close)

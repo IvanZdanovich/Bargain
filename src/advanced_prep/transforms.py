@@ -253,3 +253,333 @@ def compute_candle_range(candle: ResampledCandleData) -> Decimal:
     """
     return candle["high"] - candle["low"]
 
+
+# === Advanced Candle Patterns ===
+
+
+def is_doji(candle: ResampledCandleData, threshold: Decimal = Decimal("0.1")) -> bool:
+    """
+    Detect Doji pattern (open ≈ close).
+
+    Args:
+        candle: OHLC candle.
+        threshold: Maximum body/range ratio for Doji (default 0.1 = 10%).
+
+    Returns:
+        True if Doji pattern detected.
+    """
+    body_size = compute_candle_body_size(candle)
+    range_size = compute_candle_range(candle)
+
+    if range_size == 0:
+        return True
+
+    return (body_size / range_size) <= threshold
+
+
+def is_hammer(
+    candle: ResampledCandleData,
+    trend: str = "down",
+    body_ratio_threshold: Decimal = Decimal("0.3"),
+    lower_wick_ratio: Decimal = Decimal("2.0"),
+) -> bool:
+    """
+    Detect Hammer pattern (bullish reversal).
+
+    Args:
+        candle: OHLC candle.
+        trend: Prior trend ("down" for hammer, "up" for inverted hammer).
+        body_ratio_threshold: Max body size / range ratio (default 30%).
+        lower_wick_ratio: Min lower wick / body ratio (default 2x).
+
+    Returns:
+        True if Hammer pattern detected.
+    """
+    body_size = compute_candle_body_size(candle)
+    range_size = compute_candle_range(candle)
+    upper_wick, lower_wick = compute_candle_wick_sizes(candle)
+
+    if range_size == 0 or body_size == 0:
+        return False
+
+    # Small body relative to range
+    if (body_size / range_size) > body_ratio_threshold:
+        return False
+
+    # Long lower wick
+    if trend == "down":
+        return (lower_wick / body_size) >= lower_wick_ratio and upper_wick < body_size
+    else:  # inverted hammer
+        return (upper_wick / body_size) >= lower_wick_ratio and lower_wick < body_size
+
+
+def is_shooting_star(
+    candle: ResampledCandleData,
+    body_ratio_threshold: Decimal = Decimal("0.3"),
+    upper_wick_ratio: Decimal = Decimal("2.0"),
+) -> bool:
+    """
+    Detect Shooting Star pattern (bearish reversal).
+
+    Args:
+        candle: OHLC candle.
+        body_ratio_threshold: Max body size / range ratio (default 30%).
+        upper_wick_ratio: Min upper wick / body ratio (default 2x).
+
+    Returns:
+        True if Shooting Star detected.
+    """
+    body_size = compute_candle_body_size(candle)
+    range_size = compute_candle_range(candle)
+    upper_wick, lower_wick = compute_candle_wick_sizes(candle)
+
+    if range_size == 0 or body_size == 0:
+        return False
+
+    # Small body at bottom
+    if (body_size / range_size) > body_ratio_threshold:
+        return False
+
+    # Long upper wick, small lower wick
+    return (upper_wick / body_size) >= upper_wick_ratio and lower_wick < body_size
+
+
+def is_engulfing_bullish(candle: ResampledCandleData, prev_candle: ResampledCandleData) -> bool:
+    """
+    Detect Bullish Engulfing pattern.
+
+    Args:
+        candle: Current candle (should be bullish).
+        prev_candle: Previous candle (should be bearish).
+
+    Returns:
+        True if Bullish Engulfing detected.
+    """
+    # Current must be bullish, previous must be bearish
+    if not is_bullish_candle(candle) or not is_bearish_candle(prev_candle):
+        return False
+
+    # Current body must engulf previous body
+    curr_body_top = candle["close"]
+    curr_body_bottom = candle["open"]
+    prev_body_top = prev_candle["open"]
+    prev_body_bottom = prev_candle["close"]
+
+    return curr_body_bottom <= prev_body_bottom and curr_body_top >= prev_body_top
+
+
+def is_engulfing_bearish(candle: ResampledCandleData, prev_candle: ResampledCandleData) -> bool:
+    """
+    Detect Bearish Engulfing pattern.
+
+    Args:
+        candle: Current candle (should be bearish).
+        prev_candle: Previous candle (should be bullish).
+
+    Returns:
+        True if Bearish Engulfing detected.
+    """
+    # Current must be bearish, previous must be bullish
+    if not is_bearish_candle(candle) or not is_bullish_candle(prev_candle):
+        return False
+
+    # Current body must engulf previous body
+    curr_body_top = candle["open"]
+    curr_body_bottom = candle["close"]
+    prev_body_top = prev_candle["close"]
+    prev_body_bottom = prev_candle["open"]
+
+    return curr_body_bottom <= prev_body_bottom and curr_body_top >= prev_body_top
+
+
+def is_morning_star(
+    candle1: ResampledCandleData,
+    candle2: ResampledCandleData,
+    candle3: ResampledCandleData,
+) -> bool:
+    """
+    Detect Morning Star pattern (bullish reversal).
+
+    Args:
+        candle1: First candle (should be bearish).
+        candle2: Second candle (small body - star).
+        candle3: Third candle (should be bullish).
+
+    Returns:
+        True if Morning Star detected.
+    """
+    # First must be bearish
+    if not is_bearish_candle(candle1):
+        return False
+
+    # Second must be small (doji or small body)
+    if not is_doji(candle2, threshold=Decimal("0.3")):
+        return False
+
+    # Third must be bullish
+    if not is_bullish_candle(candle3):
+        return False
+
+    # Third should close above midpoint of first
+    first_midpoint = (candle1["open"] + candle1["close"]) / 2
+    return candle3["close"] > first_midpoint
+
+
+def is_evening_star(
+    candle1: ResampledCandleData,
+    candle2: ResampledCandleData,
+    candle3: ResampledCandleData,
+) -> bool:
+    """
+    Detect Evening Star pattern (bearish reversal).
+
+    Args:
+        candle1: First candle (should be bullish).
+        candle2: Second candle (small body - star).
+        candle3: Third candle (should be bearish).
+
+    Returns:
+        True if Evening Star detected.
+    """
+    # First must be bullish
+    if not is_bullish_candle(candle1):
+        return False
+
+    # Second must be small (doji or small body)
+    if not is_doji(candle2, threshold=Decimal("0.3")):
+        return False
+
+    # Third must be bearish
+    if not is_bearish_candle(candle3):
+        return False
+
+    # Third should close below midpoint of first
+    first_midpoint = (candle1["open"] + candle1["close"]) / 2
+    return candle3["close"] < first_midpoint
+
+
+def is_three_white_soldiers(
+    candle1: ResampledCandleData,
+    candle2: ResampledCandleData,
+    candle3: ResampledCandleData,
+) -> bool:
+    """
+    Detect Three White Soldiers pattern (strong bullish continuation).
+
+    Args:
+        candle1: First candle.
+        candle2: Second candle.
+        candle3: Third candle.
+
+    Returns:
+        True if Three White Soldiers detected.
+    """
+    # All must be bullish
+    if not (is_bullish_candle(candle1) and is_bullish_candle(candle2) and is_bullish_candle(candle3)):
+        return False
+
+    # Each candle should open within previous body
+    if not (candle1["close"] >= candle2["open"] >= candle1["open"]):
+        return False
+
+    if not (candle2["close"] >= candle3["open"] >= candle2["open"]):
+        return False
+
+    # Prices should be ascending
+    return candle1["close"] < candle2["close"] < candle3["close"]
+
+
+def is_three_black_crows(
+    candle1: ResampledCandleData,
+    candle2: ResampledCandleData,
+    candle3: ResampledCandleData,
+) -> bool:
+    """
+    Detect Three Black Crows pattern (strong bearish continuation).
+
+    Args:
+        candle1: First candle.
+        candle2: Second candle.
+        candle3: Third candle.
+
+    Returns:
+        True if Three Black Crows detected.
+    """
+    # All must be bearish
+    if not (is_bearish_candle(candle1) and is_bearish_candle(candle2) and is_bearish_candle(candle3)):
+        return False
+
+    # Each candle should open within previous body
+    if not (candle1["close"] <= candle2["open"] <= candle1["open"]):
+        return False
+
+    if not (candle2["close"] <= candle3["open"] <= candle2["open"]):
+        return False
+
+    # Prices should be descending
+    return candle1["close"] > candle2["close"] > candle3["close"]
+
+
+def detect_candle_pattern(
+    candles: list[ResampledCandleData],
+) -> list[str]:
+    """
+    Detect all applicable candle patterns.
+
+    Args:
+        candles: List of candles (1-3 candles depending on pattern).
+
+    Returns:
+        List of detected pattern names.
+    """
+    patterns: list[str] = []
+
+    if not candles:
+        return patterns
+
+    current = candles[-1]
+
+    # Single candle patterns
+    if is_doji(current):
+        patterns.append("doji")
+
+    if is_hammer(current, trend="down"):
+        patterns.append("hammer")
+
+    if is_hammer(current, trend="up"):
+        patterns.append("inverted_hammer")
+
+    if is_shooting_star(current):
+        patterns.append("shooting_star")
+
+    # Two candle patterns
+    if len(candles) >= 2:
+        prev = candles[-2]
+
+        if is_engulfing_bullish(current, prev):
+            patterns.append("bullish_engulfing")
+
+        if is_engulfing_bearish(current, prev):
+            patterns.append("bearish_engulfing")
+
+    # Three candle patterns
+    if len(candles) >= 3:
+        candle1 = candles[-3]
+        candle2 = candles[-2]
+        candle3 = candles[-1]
+
+        if is_morning_star(candle1, candle2, candle3):
+            patterns.append("morning_star")
+
+        if is_evening_star(candle1, candle2, candle3):
+            patterns.append("evening_star")
+
+        if is_three_white_soldiers(candle1, candle2, candle3):
+            patterns.append("three_white_soldiers")
+
+        if is_three_black_crows(candle1, candle2, candle3):
+            patterns.append("three_black_crows")
+
+    return patterns
+
+
