@@ -259,3 +259,63 @@ class ProviderHealthData(TypedDict):
     error_count: int
     reconnect_count: int
     latency_ms: float | None
+
+
+# === Advanced Data Preparation Types ===
+
+
+class ResampledCandleData(TypedDict):
+    """Resampled candle with OHLCV and VWAP."""
+
+    open_time_ms: int
+    close_time_ms: int
+    open: Decimal
+    high: Decimal
+    low: Decimal
+    close: Decimal
+    volume: Decimal
+    vwap: Decimal
+    tick_count: int
+    is_finalized: bool
+
+
+class HeikenAshiData(TypedDict):
+    """Heiken Ashi candle."""
+
+    open_time_ms: int
+    close_time_ms: int
+    ha_open: Decimal
+    ha_high: Decimal
+    ha_low: Decimal
+    ha_close: Decimal
+
+
+class IndicatorStateData(TypedDict):
+    """State for streaming indicator computation."""
+
+    name: str
+    value: Decimal
+    metadata: dict[str, Any]
+
+
+class MultiTimeframeSnapshotData(TypedDict):
+    """Multi-timeframe snapshot for strategy engine."""
+
+    timestamp_ms: int
+    symbol: str
+    candles: dict[str, ResampledCandleData]  # timeframe -> candle
+    indicators: dict[str, dict[str, Decimal]]  # timeframe -> {indicator_name -> value}
+    transforms: dict[str, Any]  # Additional computed transforms
+
+
+# === Indicator Computation Types ===
+
+IndicatorComputeFn = Callable[[Sequence[Decimal]], Decimal]
+StreamingUpdateFn = Callable[[IndicatorStateData, Decimal], IndicatorStateData]
+
+
+# === Candle Handler for Advanced Prep ===
+
+CandleEmitFn = Callable[[str, ResampledCandleData], None]
+MultiTimeframeReadyFn = Callable[[MultiTimeframeSnapshotData], None]
+
