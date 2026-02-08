@@ -1,0 +1,73 @@
+# Bargain Trading Framework - Default Configuration
+# This file contains non-sensitive configuration constants.
+# For sensitive parameters (API keys, secrets), see secrets.yaml.example
+
+# Schema version for data format compatibility
+schema_version: "1.0.0"
+
+# === Binance Provider Settings ===
+binance:
+  # Spot endpoints
+  ws_url: "wss://stream.binance.com:9443/ws"
+  ws_url_testnet: "wss://testnet.binance.vision/ws"
+  rest_url: "https://api.binance.com"
+  rest_url_testnet: "https://testnet.binance.vision"
+
+  # Futures endpoints
+  futures_ws_url: "wss://fstream.binance.com/ws"
+  futures_rest_url: "https://fapi.binance.com"
+
+  # Connection settings
+  http_timeout_s: 30
+  ws_heartbeat_s: 30
+  ws_receive_timeout_s: 60
+  ping_interval_s: 30
+
+  # Default rate limit retry delay (seconds)
+  rate_limit_retry_default_s: 60
+
+# === Provider Defaults ===
+provider_defaults:
+  rate_limit_per_second: 10
+  reconnect_attempts: 5
+  reconnect_delay_ms: 1000
+
+# === Reliability Settings ===
+reliability:
+  # Exponential backoff
+  max_attempts: 5
+  base_delay_ms: 1000
+  max_delay_ms: 60000
+
+  # Circuit breaker
+  failure_threshold: 5
+  recovery_timeout_s: 60.0
+
+# === Storage Settings ===
+storage:
+  batch_size: 100
+  flush_interval_ms: 5000
+
+# === Data Validation ===
+validation:
+  # Timestamp bounds (Unix ms)
+  # 2020-01-01 00:00:00 UTC
+  min_timestamp_ms: 1577836800000
+  # 2100-01-01 00:00:00 UTC
+  max_timestamp_ms: 4102444800000
+
+# === Symbol Normalization ===
+normalization:
+  # Known quote currencies for symbol parsing (ordered by priority)
+  quote_currencies:
+    - "USDT"
+    - "USDC"
+    - "BUSD"
+    - "TUSD"
+    - "USD"
+    - "BTC"
+    - "ETH"
+    - "BNB"
+    - "EUR"
+    - "GBP"
+

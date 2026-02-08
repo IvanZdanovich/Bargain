@@ -7,8 +7,7 @@ All TypedDict and Callable aliases live here as the single source of truth.
 from typing import TypedDict, Callable, Literal, Sequence, Any, Awaitable
 from decimal import Decimal
 
-# Schema version for forward compatibility
-SCHEMA_VERSION = "1.0.0"
+# Note: SCHEMA_VERSION is now centralized in src/config.py and configs/default.yaml
 
 # === Enums as Literals ===
 Side = Literal["buy", "sell"]

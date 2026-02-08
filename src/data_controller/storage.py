@@ -9,6 +9,7 @@ import logging
 from typing import Any, Sequence
 
 from src.types import MarketDataRecord, StorageConfigData
+from src.config import get_storage_defaults
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +94,8 @@ def buffer_record(state: dict[str, Any], record: MarketDataRecord) -> None:
     state["buffer"].append(record)
 
     # Check if we should flush immediately
-    batch_size = state["config"].get("batch_size", 100)
+    storage_defaults = get_storage_defaults()
+    batch_size = state["config"].get("batch_size", storage_defaults["batch_size"])
     if len(state["buffer"]) >= batch_size:
         asyncio.create_task(flush_buffer(state))
 
@@ -141,7 +143,10 @@ async def _flush_loop(state: dict[str, Any]) -> None:
     Args:
         state: Storage buffer state.
     """
-    flush_interval_ms = state["config"].get("flush_interval_ms", 5000)
+    storage_defaults = get_storage_defaults()
+    flush_interval_ms = state["config"].get(
+        "flush_interval_ms", storage_defaults["flush_interval_ms"]
+    )
     flush_interval_s = flush_interval_ms / 1000
 
     while state["running"]:

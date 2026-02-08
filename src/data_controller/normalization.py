@@ -12,6 +12,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from src.types import Side
+from src.config import get_normalization_config, get_validation_config
 
 
 def to_decimal(value: Any) -> Decimal:
@@ -68,8 +69,9 @@ def normalize_symbol(symbol: str, provider: str) -> str:
     # Remove common separators and normalize to uppercase
     clean = symbol.upper().replace("-", "").replace("_", "").replace("/", "")
 
-    # Common quote currencies (ordered by length to match longest first)
-    quotes = ["USDT", "USDC", "BUSD", "TUSD", "USD", "BTC", "ETH", "BNB", "EUR", "GBP"]
+    # Get quote currencies from config
+    norm_config = get_normalization_config()
+    quotes = norm_config["quote_currencies"]
 
     for quote in quotes:
         if clean.endswith(quote):
@@ -108,9 +110,9 @@ def validate_timestamp(timestamp_ms: int) -> bool:
     Returns:
         True if valid, False otherwise.
     """
-    # Between 2020 and 2100
-    min_ts = 1577836800000  # 2020-01-01 00:00:00 UTC
-    max_ts = 4102444800000  # 2100-01-01 00:00:00 UTC
+    validation_config = get_validation_config()
+    min_ts = validation_config["min_timestamp_ms"]
+    max_ts = validation_config["max_timestamp_ms"]
     return min_ts <= timestamp_ms <= max_ts
 
 

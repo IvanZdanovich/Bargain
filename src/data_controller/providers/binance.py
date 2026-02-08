@@ -16,7 +16,6 @@ except ImportError:
     aiohttp = None  # type: ignore
 
 from src.types import (
-    SCHEMA_VERSION,
     ProviderConfigData,
     SubscriptionConfigData,
     HistoricalRequestData,
@@ -26,6 +25,11 @@ from src.types import (
     OrderBookLevelData,
     TickData,
     Side,
+)
+from src.config import (
+    get_binance_config,
+    get_schema_version,
+    get_provider_defaults,
 )
 from src.data_controller.normalization import (
     to_decimal,
@@ -40,16 +44,6 @@ from src.data_controller.reliability import (
 
 logger = logging.getLogger(__name__)
 
-# === Configuration Constants ===
-
-BINANCE_WS_URL = "wss://stream.binance.com:9443/ws"
-BINANCE_WS_URL_TESTNET = "wss://testnet.binance.vision/ws"
-BINANCE_REST_URL = "https://api.binance.com"
-BINANCE_REST_URL_TESTNET = "https://testnet.binance.vision"
-
-# Futures endpoints
-BINANCE_FUTURES_WS_URL = "wss://fstream.binance.com/ws"
-BINANCE_FUTURES_REST_URL = "https://fapi.binance.com"
 
 
 def create_binance_provider(config: ProviderConfigData) -> dict[str, Any]:
@@ -62,6 +56,7 @@ def create_binance_provider(config: ProviderConfigData) -> dict[str, Any]:
     Returns:
         Mutable state dict for the provider instance.
     """
+    defaults = get_provider_defaults()
     return {
         "config": config,
         "name": config["name"],
@@ -74,7 +69,9 @@ def create_binance_provider(config: ProviderConfigData) -> dict[str, Any]:
         "message_count": 0,
         "error_count": 0,
         "last_message_ms": None,
-        "rate_limiter": create_rate_limiter(config.get("rate_limit_per_second", 10)),
+        "rate_limiter": create_rate_limiter(
+            config.get("rate_limit_per_second", defaults["rate_limit_per_second"])
+        ),
         "listen_key": None,
         "ping_task": None,
     }
@@ -108,7 +105,7 @@ def parse_binance_trade(raw: dict[str, Any], provider_name: str) -> TradeData:
     side: Side = "sell" if is_buyer_maker else "buy"
 
     return TradeData(
-        schema_version=SCHEMA_VERSION,
+        schema_version=get_schema_version(),
         provider=provider_name,
         symbol=normalize_symbol(symbol, "binance"),
         trade_id=str(trade_id),
@@ -145,7 +142,7 @@ def parse_binance_candle(raw: dict[str, Any], provider_name: str) -> CandleData:
     close_time = k.get("T", k.get("closeTime", k[6] if isinstance(k, list) else 0))
 
     return CandleData(
-        schema_version=SCHEMA_VERSION,
+        schema_version=get_schema_version(),
         provider=provider_name,
         symbol=normalize_symbol(symbol, "binance"),
         interval=interval,
@@ -175,7 +172,7 @@ def parse_binance_candle_rest(raw: list, symbol: str, interval: str, provider_na
         Normalized CandleData.
     """
     return CandleData(
-        schema_version=SCHEMA_VERSION,
+        schema_version=get_schema_version(),
         provider=provider_name,
         symbol=normalize_symbol(symbol, "binance"),
         interval=interval,
@@ -215,7 +212,7 @@ def parse_binance_orderbook_snapshot(
         ]
 
     return OrderBookSnapshotData(
-        schema_version=SCHEMA_VERSION,
+        schema_version=get_schema_version(),
         provider=provider_name,
         symbol=normalize_symbol(symbol, "binance"),
         timestamp_ms=raw.get("E", 0),
@@ -240,7 +237,7 @@ def parse_binance_ticker(raw: dict[str, Any], provider_name: str) -> TickData:
     symbol = raw.get("s", raw.get("symbol", ""))
 
     return TickData(
-        schema_version=SCHEMA_VERSION,
+        schema_version=get_schema_version(),
         provider=provider_name,
         symbol=normalize_symbol(symbol, "binance"),
         timestamp_ms=raw.get("E", raw.get("closeTime", 0)),
@@ -259,16 +256,18 @@ def parse_binance_ticker(raw: dict[str, Any], provider_name: str) -> TickData:
 
 def _get_ws_url(config: ProviderConfigData) -> str:
     """Get WebSocket URL based on config."""
+    binance_cfg = get_binance_config()
     if config.get("testnet", False):
-        return BINANCE_WS_URL_TESTNET
-    return BINANCE_WS_URL
+        return binance_cfg["ws_url_testnet"]
+    return binance_cfg["ws_url"]
 
 
 def _get_rest_url(config: ProviderConfigData) -> str:
     """Get REST URL based on config."""
+    binance_cfg = get_binance_config()
     if config.get("testnet", False):
-        return BINANCE_REST_URL_TESTNET
-    return BINANCE_REST_URL
+        return binance_cfg["rest_url_testnet"]
+    return binance_cfg["rest_url"]
 
 
 async def connect_binance(state: dict[str, Any]) -> None:
@@ -282,19 +281,20 @@ async def connect_binance(state: dict[str, Any]) -> None:
     Raises: ConnectionError on failure.
     """
     config = state["config"]
+    binance_cfg = get_binance_config()
     state["status"] = "connecting"
 
     try:
         # Create HTTP session
-        timeout = aiohttp.ClientTimeout(total=30)
+        timeout = aiohttp.ClientTimeout(total=binance_cfg["http_timeout_s"])
         state["http_session"] = aiohttp.ClientSession(timeout=timeout)
 
         # Create WebSocket connection
         ws_url = _get_ws_url(config)
         state["ws_session"] = await state["http_session"].ws_connect(
             ws_url,
-            heartbeat=30,
-            receive_timeout=60,
+            heartbeat=binance_cfg["ws_heartbeat_s"],
+            receive_timeout=binance_cfg["ws_receive_timeout_s"],
         )
 
         state["status"] = "connected"
@@ -380,9 +380,12 @@ async def _ping_loop(state: dict[str, Any]) -> None:
     Args:
         state: Provider state.
     """
+    binance_cfg = get_binance_config()
+    ping_interval = binance_cfg["ping_interval_s"]
+
     while state["status"] == "connected":
         try:
-            await asyncio.sleep(30)
+            await asyncio.sleep(ping_interval)
             if state["ws_session"] and not state["ws_session"].closed:
                 await state["ws_session"].ping()
         except asyncio.CancelledError:
@@ -637,7 +640,7 @@ async def fetch_binance_historical_trades(
                 return
 
             trade = TradeData(
-                schema_version=SCHEMA_VERSION,
+                schema_version=get_schema_version(),
                 provider=provider_name,
                 symbol=normalize_symbol(symbol, "binance"),
                 trade_id=str(raw_trade.get("a", 0)),

@@ -1,3 +1,30 @@
 .idea
 
 prev_ver_draft
+
+# Secrets - NEVER commit!
+configs/secrets.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+*.swp
+*.swo
+

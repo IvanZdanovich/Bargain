@@ -3,6 +3,9 @@
 # Core async HTTP/WebSocket
 aiohttp>=3.9.0
 
+# Configuration
+PyYAML>=6.0.0
+
 # Data validation (used at ingestion boundaries)
 pydantic>=2.5.0
 

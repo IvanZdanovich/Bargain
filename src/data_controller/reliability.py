@@ -12,6 +12,7 @@ import logging
 from typing import Callable, Awaitable, TypeVar
 
 from src.types import ProviderConfigData, RateLimiterStateData
+from src.config import get_reliability_config
 
 logger = logging.getLogger(__name__)
 
@@ -20,9 +21,9 @@ T = TypeVar("T")
 
 async def with_exponential_backoff(
     operation: Callable[[], Awaitable[T]],
-    max_attempts: int = 5,
-    base_delay_ms: int = 1000,
-    max_delay_ms: int = 60000,
+    max_attempts: int | None = None,
+    base_delay_ms: int | None = None,
+    max_delay_ms: int | None = None,
     operation_name: str = "operation",
 ) -> T:
     """
@@ -30,9 +31,9 @@ async def with_exponential_backoff(
 
     Args:
         operation: Async function to execute.
-        max_attempts: Maximum retry attempts.
-        base_delay_ms: Initial delay in milliseconds.
-        max_delay_ms: Maximum delay cap in milliseconds.
+        max_attempts: Maximum retry attempts (default from config).
+        base_delay_ms: Initial delay in milliseconds (default from config).
+        max_delay_ms: Maximum delay cap in milliseconds (default from config).
         operation_name: Name for logging.
 
     Returns:
@@ -41,6 +42,15 @@ async def with_exponential_backoff(
     Raises:
         Exception: If all retries exhausted.
     """
+    reliability_cfg = get_reliability_config()
+
+    if max_attempts is None:
+        max_attempts = reliability_cfg["max_attempts"]
+    if base_delay_ms is None:
+        base_delay_ms = reliability_cfg["base_delay_ms"]
+    if max_delay_ms is None:
+        max_delay_ms = reliability_cfg["max_delay_ms"]
+
     last_exception: Exception | None = None
 
     for attempt in range(max_attempts):
@@ -189,16 +199,23 @@ class CircuitBreaker:
 
     def __init__(
         self,
-        failure_threshold: int = 5,
-        recovery_timeout_s: float = 60.0,
+        failure_threshold: int | None = None,
+        recovery_timeout_s: float | None = None,
     ):
         """
         Initialize circuit breaker.
 
         Args:
-            failure_threshold: Failures before opening circuit.
-            recovery_timeout_s: Seconds before attempting recovery.
+            failure_threshold: Failures before opening circuit (default from config).
+            recovery_timeout_s: Seconds before attempting recovery (default from config).
         """
+        reliability_cfg = get_reliability_config()
+
+        if failure_threshold is None:
+            failure_threshold = reliability_cfg["failure_threshold"]
+        if recovery_timeout_s is None:
+            recovery_timeout_s = reliability_cfg["recovery_timeout_s"]
+
         self._failure_count = 0
         self._failure_threshold = failure_threshold
         self._recovery_timeout = recovery_timeout_s

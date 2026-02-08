@@ -3,7 +3,7 @@
 import pytest
 from decimal import Decimal
 
-from src.types import SCHEMA_VERSION
+from src.config import get_schema_version
 from src.data_controller.providers.binance import (
     parse_binance_trade,
     parse_binance_candle,
@@ -163,7 +163,7 @@ class TestParseBinanceTrade:
         """Parse trade where buyer is taker."""
         result = parse_binance_trade(raw_binance_trade, "binance")
 
-        assert result["schema_version"] == SCHEMA_VERSION
+        assert result["schema_version"] == get_schema_version()
         assert result["provider"] == "binance"
         assert result["symbol"] == "BTC/USDT"
         assert result["trade_id"] == "123456789"
@@ -194,7 +194,7 @@ class TestParseBinanceCandle:
         """Parse closed candle."""
         result = parse_binance_candle(raw_binance_kline, "binance")
 
-        assert result["schema_version"] == SCHEMA_VERSION
+        assert result["schema_version"] == get_schema_version()
         assert result["provider"] == "binance"
         assert result["symbol"] == "BTC/USDT"
         assert result["interval"] == "1m"
@@ -228,7 +228,7 @@ class TestParseBinanceCandleRest:
             "binance",
         )
 
-        assert result["schema_version"] == SCHEMA_VERSION
+        assert result["schema_version"] == get_schema_version()
         assert result["symbol"] == "BTC/USDT"
         assert result["interval"] == "1m"
         assert result["open"] == Decimal("42000.00")
@@ -250,7 +250,7 @@ class TestParseBinanceOrderbookSnapshot:
             "binance",
         )
 
-        assert result["schema_version"] == SCHEMA_VERSION
+        assert result["schema_version"] == get_schema_version()
         assert result["symbol"] == "BTC/USDT"
         assert result["sequence"] == 123456789
         assert len(result["bids"]) == 3
@@ -272,7 +272,7 @@ class TestParseBinanceTicker:
         """Parse 24hr ticker."""
         result = parse_binance_ticker(raw_binance_ticker, "binance")
 
-        assert result["schema_version"] == SCHEMA_VERSION
+        assert result["schema_version"] == get_schema_version()
         assert result["symbol"] == "BTC/USDT"
         assert result["bid_price"] == Decimal("42000.00")
         assert result["bid_quantity"] == Decimal("1.5")
