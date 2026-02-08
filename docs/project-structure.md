@@ -1,16 +1,16 @@
-# Project Structure
+# **Project Structure**
 
-## Overview
+## **Overview**
 
-This file defines a flat, extensible project structure for a trading application.
-Keep the layout shallow (1–3 levels) so navigation and automation remain simple.
+This document defines a flat, extensible project structure for a trading application.  
+The layout is intentionally shallow (1–3 levels) to keep navigation simple and ensure automation, refactoring, and
+onboarding remain frictionless.
 
-**Policy:** Do not generate documentation unless explicitly requested. Any docs must be created only when the user asks
-and specifies scope and format.
+**Policy:** Documentation is generated only when explicitly requested, with clearly defined scope and format.
 
 ---
 
-## Related Documents
+## **Related Documents**
 
 - [AGENTS.md](/AGENTS.md) — comprehensive rules for AI agents
 - [docs/naming-conventions.md](/docs/naming-conventions.md) — naming rules
@@ -18,115 +18,124 @@ and specifies scope and format.
 
 ---
 
-## Principles
+## **Core Principles**
 
-1. **Flat hierarchy:** Prefer top-level folders and at most one nested level for related files.
-2. **Separation of concerns:** Data ingestion, data preparation, strategies, controllers, backtesting, UI, and backend
-   are distinct modules.
-3. **Typed contracts:** Use `TypedDict` for data shapes and `Callable` aliases for pluggable behavior.
-4. **Function first:** Prefer small pure functions and pipelines over heavy class hierarchies.
-5. **Hot path efficiency:** Use plain `dict`/`TypedDict` and dataclasses for performance-critical code; validate
-   external I/O at boundaries.
-6. **Explicit dependency injection:** Pass providers and executors into pipeline functions; avoid global mutable state.
-7. **Extensible by design:** Add new providers, strategies, or systems by adding modules under the appropriate top-level
-   folder.
-
----
-
-## Structure Levels
-
-- **Level 1:** Top-level folders that represent major domains. Keep this list short and stable.
-- **Level 2:** Optional subfolders for related implementations or variants. Limit to one nested level.
-- **Files:** Place modules, types, and small utilities inside folders. Keep file names descriptive and domain-focused.
+1. **Flat hierarchy** — Prefer top-level domains with at most one nested level.
+2. **Separation of concerns** — Ingestion, preparation, strategies, controllers, backtesting, UI, and backend are
+   isolated modules.
+3. **Typed contracts** — Use `TypedDict` for data schemas and `Callable` aliases for pluggable logic.
+4. **Function-first architecture** — Favor pure functions and pipelines over classes and inheritance.
+5. **Hot-path efficiency** — Use `dict`/`TypedDict` and dataclasses in performance-critical paths; validate external I/O
+   at boundaries.
+6. **Explicit dependency injection** — Pass providers, executors, and configuration into pipelines; avoid global mutable
+   state.
+7. **Extensibility** — Add new providers, strategies, or systems by adding modules under the appropriate top-level
+   folder without modifying existing code.
 
 ---
 
-## Core Components and Responsibilities
+## **Structure Levels**
 
-### Data Controller
+- **Level 1:** Stable top-level folders representing major domains.
+- **Level 2:** Optional subfolders grouping related implementations or variants.
+- **Files:** Modules, types, and utilities placed inside domain folders with descriptive, domain-focused names.
 
-**Purpose:** Manage data providers and initial ingestion and normalization.
+---
+
+## **Core Components and Responsibilities**
+
+### **Data Controller**
+
+**Purpose:** Coordinate data providers and manage ingestion, normalization, and unified delivery of market data.
 
 **Responsibilities:**
 
-- Connect to live exchanges and testnets (e.g., Binance API and Binance Testnet).
-- Provide unified raw tick and historical fetch interfaces.
-- Convert raw payloads into typed shapes via parse functions.
+- Connect to live exchanges and testnets (e.g., Binance Spot, Futures, Testnet).
+- Provide unified interfaces for:
+    - WebSocket tick streaming
+    - REST-based historical retrieval
+- Parse heterogeneous payloads into strongly typed, normalized structures.
+- Handle reconnection, rate limits, backoff, and integrity checks (sequence gaps, timestamp drift, malformed payloads).
+- Support both live streaming and historical replay with consistent output schemas.
+- Enforce a unified data contract for downstream components (pipelines, indicators, strategies).
+- Manage lifecycle: initialization, provider registration, teardown, and health monitoring.
 
 ---
 
-### Advanced Data Preparation
+### **Advanced Data Preparation**
 
-**Purpose:** Produce enriched, multi-timeframe, and derived series for strategies.
+**Purpose:** Produce enriched, multi-timeframe, and derived series for strategy consumption.
 
 **Responsibilities:**
 
 - Resample and align multiple timeframes.
-- Compute indicators and transforms such as Heiken Ashi, ATR, EMA, VWAP.
-- Provide caching and windowed streaming helpers for hot loops.
+- Compute indicators and transforms (Heiken Ashi, ATR, EMA, VWAP, etc.).
+- Provide caching, rolling windows, and streaming helpers optimized for hot loops.
 
 ---
 
-### Pluggable Parameterized Strategies
+### **Pluggable Parameterized Strategies**
 
-**Purpose:** Strategy logic implemented as composable, parameterized functions.
+**Purpose:** Implement strategy logic as composable, parameterized pure functions.
 
 **Responsibilities:**
 
-- Expose a small pure function that accepts typed market data and parameters and returns signals/orders.
-- Provide default parameter sets and a factory to create configured strategy functions.
+- Expose a pure function accepting typed market data and parameters, returning signals/orders.
+- Provide default parameter sets and a factory for creating configured strategy instances.
+- Ensure strategies remain stateless; state is handled by controllers or pipelines.
 
 ---
 
-### Backtesting Controller
+### **Backtesting Controller**
 
-**Purpose:** Run historical simulations deterministically and produce metrics and traces.
+**Purpose:** Execute deterministic historical simulations and produce metrics, logs, and traces.
 
 **Responsibilities:**
 
-- Replay market data, call strategy functions, simulate fills, slippage, and commissions.
-- Produce time series of equity, positions, and trade logs.
-- Support vectorized or event-driven backtests depending on performance needs.
+- Replay market data and call strategy functions.
+- Simulate fills, slippage, commissions, and execution latency.
+- Produce equity curves, position series, and trade logs.
+- Support vectorized or event-driven execution depending on performance needs.
 
 ---
 
-### Risk Controller
+### **Risk Controller**
 
-**Purpose:** Global account risk management wrapper around strategies.
+**Purpose:** Enforce global account-level risk constraints around strategy output.
 
 **Responsibilities:**
 
-- Enforce drawdown limits, max position sizing, exposure caps, and volatility-aware sizing.
-- Monitor slippage and commission impact and adjust orders or pause strategies.
-- Provide hooks for emergency stop and risk alerts.
+- Apply drawdown limits, max position sizing, exposure caps, and volatility-aware sizing.
+- Monitor slippage and commission impact; adjust or block orders when thresholds are exceeded.
+- Provide emergency stop hooks and risk alerts.
 
 ---
 
-### Backend Server
+### **Backend Server**
 
-**Purpose:** Serve paper trading and live trading endpoints, manage state, and persist logs.
+**Purpose:** Provide paper/live trading endpoints, manage runtime state, and persist logs.
 
 **Responsibilities:**
 
-- Provide REST or WebSocket endpoints for control, telemetry, and order submission.
-- Authenticate and isolate paper vs live accounts.
-- Persist trade logs, positions, and configuration.
+- Expose REST/WebSocket endpoints for control, telemetry, and order submission.
+- Authenticate and isolate paper vs. live accounts.
+- Persist trades, positions, configurations, and runtime logs.
 
 ---
 
-### Browser UI Client
+### **Browser UI Client**
 
-**Purpose:** Visualize backtest results, live telemetry, and provide control surfaces.
+**Purpose:** Visualize backtests, live telemetry, and provide interactive controls.
 
 **Responsibilities:**
 
 - Display equity curves, trade lists, and per-trade analytics.
-- Provide controls to start/stop strategies, change parameters, and inspect logs.
-- Connect to backend for live updates and control commands.
+- Provide controls for starting/stopping strategies, adjusting parameters, and inspecting logs.
+- Connect to backend for real-time updates and commands.
 
 ---
 
-## Example Layout
+## **Example Layout**
 
 ```
 src/

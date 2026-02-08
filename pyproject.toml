@@ -1,0 +1,134 @@
+# Bargain Trading Framework - Python Project Configuration
+
+[tool.black]
+line-length = 100
+target-version = ['py311', 'py312', 'py313']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.ruff_cache
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | prev_ver_draft
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+# Exclude directories
+extend-exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "build",
+    "dist",
+    "prev_ver_draft",
+]
+
+[tool.ruff.lint]
+# Enable recommended rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "RET", # flake8-return
+]
+
+# Disable specific rules
+ignore = [
+    "E501",   # line too long (handled by black)
+    "B008",   # function calls in argument defaults
+    "RET504", # unnecessary variable assignment before return
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Test files can have longer lines, unused imports (fixtures), etc.
+"tests/**/*.py" = ["E501", "F401", "F811"]
+"**/conftest.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+]
+markers = [
+    "asyncio: mark test as async",
+    "integration: mark test as integration test",
+    "slow: mark test as slow running",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+show_error_codes = true
+show_column_numbers = true
+pretty = true
+
+# Per-module options
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/prev_ver_draft/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
