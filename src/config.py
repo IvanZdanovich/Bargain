@@ -109,7 +109,7 @@ def _load_yaml(file_path: Path) -> dict[str, Any]:
     Raises:
         FileNotFoundError: If file doesn't exist.
     """
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         return yaml.safe_load(f) or {}
 
 
@@ -151,10 +151,7 @@ def load_secrets(secrets_path: Path | None = None) -> dict[str, Any]:
     if secrets_path is None:
         secrets_path = _config_dir / "secrets.yaml"
 
-    if secrets_path.exists():
-        _secrets = _load_yaml(secrets_path)
-    else:
-        _secrets = {}
+    _secrets = _load_yaml(secrets_path) if secrets_path.exists() else {}
 
     return _secrets
 

@@ -8,38 +8,41 @@ Requires aiohttp: pip install aiohttp
 
 import asyncio
 import logging
-from typing import AsyncIterator, Any, Sequence
+from collections.abc import AsyncIterator, Sequence
+from typing import Any
 
 try:
     import aiohttp
 except ImportError:
     aiohttp = None  # type: ignore
 
-from src.types import (
-    ProviderConfigData,
-    SubscriptionConfigData,
-    HistoricalRequestData,
-    TradeData,
-    CandleData,
-    OrderBookSnapshotData,
-    OrderBookLevelData,
-    TickData,
-    Side,
-)
+import contextlib
+
 from src.config import (
     get_binance_config,
-    get_schema_version,
     get_provider_defaults,
+    get_schema_version,
 )
 from src.data_controller.normalization import (
-    to_decimal,
-    normalize_symbol,
     denormalize_symbol,
+    normalize_symbol,
+    to_decimal,
 )
 from src.data_controller.reliability import (
-    create_rate_limiter,
     acquire_rate_limit,
+    create_rate_limiter,
     with_exponential_backoff,
+)
+from src.types import (
+    CandleData,
+    HistoricalRequestData,
+    OrderBookLevelData,
+    OrderBookSnapshotData,
+    ProviderConfigData,
+    Side,
+    SubscriptionConfigData,
+    TickData,
+    TradeData,
 )
 
 logger = logging.getLogger(__name__)
@@ -128,10 +131,7 @@ def parse_binance_candle(raw: dict[str, Any], provider_name: str) -> CandleData:
         Normalized CandleData.
     """
     # Handle both stream format (nested under 'k') and REST format
-    if "k" in raw:
-        k = raw["k"]
-    else:
-        k = raw
+    k = raw.get("k", raw)
 
     symbol = k.get("s", k.get("symbol", ""))
     interval = k.get("i", k.get("interval", "1m"))
@@ -147,19 +147,11 @@ def parse_binance_candle(raw: dict[str, Any], provider_name: str) -> CandleData:
         interval=interval,
         open_time_ms=open_time,
         close_time_ms=close_time,
-        open=to_decimal(
-            k.get("o", k.get("open", k[1] if isinstance(k, list) else "0"))
-        ),
-        high=to_decimal(
-            k.get("h", k.get("high", k[2] if isinstance(k, list) else "0"))
-        ),
+        open=to_decimal(k.get("o", k.get("open", k[1] if isinstance(k, list) else "0"))),
+        high=to_decimal(k.get("h", k.get("high", k[2] if isinstance(k, list) else "0"))),
         low=to_decimal(k.get("l", k.get("low", k[3] if isinstance(k, list) else "0"))),
-        close=to_decimal(
-            k.get("c", k.get("close", k[4] if isinstance(k, list) else "0"))
-        ),
-        volume=to_decimal(
-            k.get("v", k.get("volume", k[5] if isinstance(k, list) else "0"))
-        ),
+        close=to_decimal(k.get("c", k.get("close", k[4] if isinstance(k, list) else "0"))),
+        volume=to_decimal(k.get("v", k.get("volume", k[5] if isinstance(k, list) else "0"))),
         is_closed=k.get("x", True),
         raw=raw,
     )
@@ -215,10 +207,7 @@ def parse_binance_orderbook_snapshot(
     """
 
     def parse_levels(levels: list) -> list[OrderBookLevelData]:
-        return [
-            OrderBookLevelData(price=to_decimal(p), quantity=to_decimal(q))
-            for p, q in levels
-        ]
+        return [OrderBookLevelData(price=to_decimal(p), quantity=to_decimal(q)) for p, q in levels]
 
     return OrderBookSnapshotData(
         schema_version=get_schema_version(),
@@ -333,10 +322,8 @@ async def disconnect_binance(state: dict[str, Any]) -> None:
     # Cancel ping task
     if state.get("ping_task"):
         state["ping_task"].cancel()
-        try:
+        with contextlib.suppress(asyncio.CancelledError):
             await state["ping_task"]
-        except asyncio.CancelledError:
-            pass
         state["ping_task"] = None
 
     # Close WebSocket
@@ -745,13 +732,13 @@ async def process_binance_message(
                 "data": parse_binance_trade(data, provider_name),
             }
 
-        elif event_type == "kline":
+        if event_type == "kline":
             return {
                 "type": "candle",
                 "data": parse_binance_candle(data, provider_name),
             }
 
-        elif event_type == "depthUpdate":
+        if event_type == "depthUpdate":
             # Order book delta - needs special handling
             return {
                 "type": "orderbook_delta",
@@ -759,7 +746,7 @@ async def process_binance_message(
                 "provider": provider_name,
             }
 
-        elif event_type == "bookTicker":
+        if event_type == "bookTicker":
             return {
                 "type": "tick",
                 "data": parse_binance_ticker(data, provider_name),

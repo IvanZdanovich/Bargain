@@ -11,8 +11,8 @@ This module contains pure functions with no side effects for:
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-from src.types import Side
 from src.config import get_normalization_config, get_validation_config
+from src.types import Side
 
 
 def to_decimal(value: Any) -> Decimal:

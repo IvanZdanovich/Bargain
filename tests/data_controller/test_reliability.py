@@ -1,16 +1,17 @@
 """Unit tests for reliability utilities."""
 
-import pytest
 import asyncio
 import time
 
+import pytest
+
 from src.data_controller.reliability import (
-    with_exponential_backoff,
-    create_rate_limiter,
-    acquire_rate_limit,
-    validate_data_integrity,
-    calculate_latency_ms,
     CircuitBreaker,
+    acquire_rate_limit,
+    calculate_latency_ms,
+    create_rate_limiter,
+    validate_data_integrity,
+    with_exponential_backoff,
 )
 
 

@@ -6,38 +6,39 @@ normalized market data to downstream components via callbacks or event bus.
 
 import asyncio
 import logging
-from typing import Any, AsyncIterator, Sequence
+from collections.abc import AsyncIterator, Sequence
+from typing import Any, cast
 
-from src.types import (
-    ProviderConfigData,
-    SubscriptionConfigData,
-    HistoricalRequestData,
-    HandlersData,
-    OrderBookSnapshotData,
-    ProviderStatus,
-    ProviderHealthData,
-    EventBusConfigData,
-    StorageConfigData,
-    MarketDataRecord,
-    TradeHandlerFn,
-    CandleHandlerFn,
-    TickHandlerFn,
-)
-from src.data_controller.providers import binance
 from src.data_controller.event_bus import (
-    create_event_bus,
-    emit_event,
-    EVENT_TRADE,
     EVENT_CANDLE,
-    EVENT_TICK,
     EVENT_ERROR,
     EVENT_STATUS_CHANGE,
+    EVENT_TICK,
+    EVENT_TRADE,
+    create_event_bus,
+    emit_event,
 )
+from src.data_controller.providers import binance
 from src.data_controller.storage import (
+    buffer_record,
     create_storage_buffer,
     start_storage_buffer,
     stop_storage_buffer,
-    buffer_record,
+)
+from src.types import (
+    CandleHandlerFn,
+    EventBusConfigData,
+    HandlersData,
+    HistoricalRequestData,
+    MarketDataRecord,
+    OrderBookSnapshotData,
+    ProviderConfigData,
+    ProviderHealthData,
+    ProviderStatus,
+    StorageConfigData,
+    SubscriptionConfigData,
+    TickHandlerFn,
+    TradeHandlerFn,
 )
 
 logger = logging.getLogger(__name__)
@@ -114,9 +115,7 @@ async def start_controller(state: dict[str, Any]) -> None:
                 await binance.connect_binance(provider_state)
 
                 # Start message processing loop
-                task = asyncio.create_task(
-                    _process_provider_messages(state, name, provider_state)
-                )
+                task = asyncio.create_task(_process_provider_messages(state, name, provider_state))
                 state["tasks"].append(task)
 
             _emit_status_change(state, name, "disconnected", provider_state["status"])
@@ -231,18 +230,14 @@ async def fetch_historical(
 
     if provider_name == "binance" or provider_name.startswith("binance"):
         if data_type == "candle":
-            async for candle in binance.fetch_binance_historical_candles(
-                provider_state, request
-            ):
+            async for candle in binance.fetch_binance_historical_candles(provider_state, request):
                 # Optionally buffer to storage
                 if state.get("storage_buffer"):
                     buffer_record(state["storage_buffer"], candle)
                 yield candle
 
         elif data_type == "trade":
-            async for trade in binance.fetch_binance_historical_trades(
-                provider_state, request
-            ):
+            async for trade in binance.fetch_binance_historical_trades(provider_state, request):
                 if state.get("storage_buffer"):
                     buffer_record(state["storage_buffer"], trade)
                 yield trade
@@ -271,9 +266,7 @@ async def fetch_orderbook_snapshot(
         raise ValueError(f"Unknown provider: {provider_name}")
 
     if provider_name == "binance" or provider_name.startswith("binance"):
-        return await binance.fetch_binance_orderbook_snapshot(
-            provider_state, symbol, limit
-        )
+        return await binance.fetch_binance_orderbook_snapshot(provider_state, symbol, limit)
 
     raise ValueError(f"Unsupported provider: {provider_name}")
 
@@ -292,12 +285,10 @@ def get_provider_status(state: dict[str, Any], provider_name: str) -> ProviderSt
     provider_state = state["providers"].get(provider_name)
     if not provider_state:
         return "disconnected"
-    return provider_state["status"]
+    return cast(ProviderStatus, provider_state["status"])
 
 
-def get_provider_health(
-    state: dict[str, Any], provider_name: str
-) -> ProviderHealthData:
+def get_provider_health(state: dict[str, Any], provider_name: str) -> ProviderHealthData:
     """
     Get health status of a provider.
 
@@ -400,15 +391,11 @@ async def _process_provider_messages(
                 await binance.reconnect_binance(provider_state)
                 # Restart message processing
                 task = asyncio.create_task(
-                    _process_provider_messages(
-                        controller_state, provider_name, provider_state
-                    )
+                    _process_provider_messages(controller_state, provider_name, provider_state)
                 )
                 controller_state["tasks"].append(task)
             except Exception as reconnect_error:
-                logger.error(
-                    f"Reconnection failed for {provider_name}: {reconnect_error}"
-                )
+                logger.error(f"Reconnection failed for {provider_name}: {reconnect_error}")
 
 
 def _dispatch_event(
@@ -461,12 +448,11 @@ def _dispatch_event(
             except Exception as e:
                 logger.error(f"Orderbook snapshot handler error: {e}")
 
-    elif event_type == "orderbook_delta":
-        if handler := handlers.get("on_orderbook_delta"):
-            try:
-                handler(data)
-            except Exception as e:
-                logger.error(f"Orderbook delta handler error: {e}")
+    elif event_type == "orderbook_delta" and (handler := handlers.get("on_orderbook_delta")):
+        try:
+            handler(data)
+        except Exception as e:
+            logger.error(f"Orderbook delta handler error: {e}")
 
     # Emit to internal event bus
     emit_event(event_bus, event_type, {"type": event_type, "data": data})

@@ -6,7 +6,8 @@ allowing downstream components (storage, strategies) to subscribe.
 
 import asyncio
 import logging
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -172,12 +173,10 @@ def get_event_stats(bus: dict[str, Any]) -> dict[str, Any]:
         Statistics dictionary.
     """
     subscriber_counts = {
-        event_type: len(callbacks)
-        for event_type, callbacks in bus["subscribers"].items()
+        event_type: len(callbacks) for event_type, callbacks in bus["subscribers"].items()
     }
     async_subscriber_counts = {
-        event_type: len(callbacks)
-        for event_type, callbacks in bus["async_subscribers"].items()
+        event_type: len(callbacks) for event_type, callbacks in bus["async_subscribers"].items()
     }
 
     return {

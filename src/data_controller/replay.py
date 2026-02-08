@@ -7,12 +7,13 @@ with configurable playback speed.
 import asyncio
 import json
 import logging
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import AsyncIterator, Any
+from typing import Any, cast
 
 from src.types import (
-    HandlersData,
     DataType,
+    HandlersData,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ async def replay_from_file(
         "skipped": 0,
     }
 
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         for line in f:
             if not line.strip():
                 continue
@@ -178,16 +179,15 @@ async def replay_iterator(
     Yields:
         Recorded event dictionaries.
     """
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         for line in f:
             if not line.strip():
                 continue
 
             record = json.loads(line)
 
-            if data_types:
-                if record.get("type") not in data_types:
-                    continue
+            if data_types and record.get("type") not in data_types:
+                continue
 
             yield record
             await asyncio.sleep(0)  # Yield control
@@ -232,7 +232,7 @@ def stop_recording(state: dict[str, Any]) -> list[dict[str, Any]]:
         List of recorded events.
     """
     state["recording"] = False
-    return state["records"].copy()
+    return cast(list[dict[str, Any]], state["records"].copy())
 
 
 def record_event(

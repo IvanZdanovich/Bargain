@@ -3,14 +3,14 @@
 import pytest
 
 from src.data_controller.event_bus import (
+    EVENT_CANDLE,
+    EVENT_TRADE,
+    clear_subscribers,
     create_event_bus,
     emit_event,
+    get_event_stats,
     subscribe_event,
     subscribe_event_async,
-    get_event_stats,
-    clear_subscribers,
-    EVENT_TRADE,
-    EVENT_CANDLE,
 )
 
 

@@ -1,17 +1,17 @@
 """Data Controller providers package."""
 
 from src.data_controller.providers.binance import (
-    create_binance_provider,
     connect_binance,
+    create_binance_provider,
     disconnect_binance,
-    subscribe_binance,
-    unsubscribe_binance,
     fetch_binance_historical_candles,
     fetch_binance_historical_trades,
-    parse_binance_trade,
     parse_binance_candle,
     parse_binance_orderbook_snapshot,
     parse_binance_ticker,
+    parse_binance_trade,
+    subscribe_binance,
+    unsubscribe_binance,
 )
 
 __all__ = [

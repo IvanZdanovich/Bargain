@@ -1,17 +1,18 @@
 """Unit tests for replay functionality."""
 
-import pytest
 from pathlib import Path
 
-from src.types import HandlersData
+import pytest
+
 from src.data_controller.replay import (
+    create_replay_recorder,
+    record_event,
     replay_from_file,
     replay_from_records,
-    create_replay_recorder,
     start_recording,
     stop_recording,
-    record_event,
 )
+from src.types import HandlersData
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 

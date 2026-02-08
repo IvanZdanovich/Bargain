@@ -5,11 +5,13 @@ Uses async iterator pattern for streaming data to storage.
 """
 
 import asyncio
+import contextlib
 import logging
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
-from src.types import MarketDataRecord, StorageConfigData
 from src.config import get_storage_defaults
+from src.types import MarketDataRecord, StorageConfigData
 
 logger = logging.getLogger(__name__)
 
@@ -68,10 +70,8 @@ async def stop_storage_buffer(state: dict[str, Any]) -> None:
 
     if state["flush_task"]:
         state["flush_task"].cancel()
-        try:
+        with contextlib.suppress(asyncio.CancelledError):
             await state["flush_task"]
-        except asyncio.CancelledError:
-            pass
 
     # Final flush
     await flush_buffer(state)

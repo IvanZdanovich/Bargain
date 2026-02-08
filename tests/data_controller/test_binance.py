@@ -1,16 +1,17 @@
 """Unit tests for Binance provider parsing functions."""
 
-import pytest
 from decimal import Decimal
+
+import pytest
 
 from src.config import get_schema_version
 from src.data_controller.providers.binance import (
-    parse_binance_trade,
+    create_binance_provider,
     parse_binance_candle,
     parse_binance_candle_rest,
     parse_binance_orderbook_snapshot,
     parse_binance_ticker,
-    create_binance_provider,
+    parse_binance_trade,
 )
 
 

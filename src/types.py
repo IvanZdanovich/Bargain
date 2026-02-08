@@ -4,17 +4,16 @@ Centralized type definitions for the Bargain trading framework.
 All TypedDict and Callable aliases live here as the single source of truth.
 """
 
-from typing import TypedDict, Callable, Literal, Sequence, Any, Awaitable
+from collections.abc import Awaitable, Callable, Sequence
 from decimal import Decimal
+from typing import Any, Literal, TypedDict
 
 # Note: SCHEMA_VERSION is now centralized in src/config.py and configs/default.yaml
 
 # === Enums as Literals ===
 Side = Literal["buy", "sell"]
 DataType = Literal["trade", "orderbook_snapshot", "orderbook_delta", "candle", "tick"]
-ProviderStatus = Literal[
-    "disconnected", "connecting", "connected", "error", "rate_limited"
-]
+ProviderStatus = Literal["disconnected", "connecting", "connected", "error", "rate_limited"]
 OperationMode = Literal["live", "historical", "replay"]
 
 # === Core Market Data Structures ===
@@ -137,9 +136,7 @@ class HistoricalRequestData(TypedDict):
 
 # === Event Types ===
 
-MarketDataRecord = (
-    TradeData | CandleData | TickData | OrderBookSnapshotData | OrderBookDeltaData
-)
+MarketDataRecord = TradeData | CandleData | TickData | OrderBookSnapshotData | OrderBookDeltaData
 
 
 class MarketEventData(TypedDict):

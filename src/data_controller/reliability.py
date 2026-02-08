@@ -9,10 +9,11 @@ This module provides:
 
 import asyncio
 import logging
-from typing import Callable, Awaitable, TypeVar
+from collections.abc import Awaitable, Callable
+from typing import TypeVar
 
-from src.types import ProviderConfigData, RateLimiterStateData
 from src.config import get_reliability_config
+from src.types import ProviderConfigData, RateLimiterStateData
 
 logger = logging.getLogger(__name__)
 
@@ -61,9 +62,7 @@ async def with_exponential_backoff(
         except Exception as e:
             last_exception = e
             if attempt == max_attempts - 1:
-                logger.error(
-                    f"{operation_name} failed after {max_attempts} attempts: {e}"
-                )
+                logger.error(f"{operation_name} failed after {max_attempts} attempts: {e}")
                 raise
 
             delay_ms = min(base_delay_ms * (2**attempt), max_delay_ms)
@@ -167,9 +166,7 @@ def validate_data_integrity(
     Returns:
         Tuple of (is_valid, list of missing fields).
     """
-    missing = [
-        field for field in required_fields if field not in data or data[field] is None
-    ]
+    missing = [field for field in required_fields if field not in data or data[field] is None]
     return len(missing) == 0, missing
 
 
@@ -234,9 +231,7 @@ class CircuitBreaker:
 
         if self._failure_count >= self._failure_threshold:
             self._is_open = True
-            logger.warning(
-                f"Circuit breaker opened after {self._failure_count} failures"
-            )
+            logger.warning(f"Circuit breaker opened after {self._failure_count} failures")
 
     def is_available(self) -> bool:
         """
