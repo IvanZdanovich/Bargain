@@ -390,7 +390,8 @@ async def _process_provider_messages(
                 data = event.get("data")
 
                 # Route to handlers
-                _dispatch_event(controller_state, event_type, data)
+                if event_type:
+                    _dispatch_event(controller_state, str(event_type), data)
 
     except asyncio.CancelledError:
         logger.info(f"Message processing cancelled for {provider_name}")
@@ -560,29 +561,38 @@ def create_strategy_feed(
     unsubscribers = []
 
     if on_trade:
-        trade_handler = on_trade  # Capture in closure
+        def trade_callback(e: dict[str, Any]) -> None:
+            if data := e.get("data"):
+                on_trade(data)
+
         unsub = subscribe_event(
             state["event_bus"],
             EVENT_TRADE,
-            lambda e, h=trade_handler: h(e["data"]) if e.get("data") else None,
+            trade_callback,
         )
         unsubscribers.append(unsub)
 
     if on_candle:
-        candle_handler = on_candle
+        def candle_callback(e: dict[str, Any]) -> None:
+            if data := e.get("data"):
+                on_candle(data)
+
         unsub = subscribe_event(
             state["event_bus"],
             EVENT_CANDLE,
-            lambda e, h=candle_handler: h(e["data"]) if e.get("data") else None,
+            candle_callback,
         )
         unsubscribers.append(unsub)
 
     if on_tick:
-        tick_handler = on_tick
+        def tick_callback(e: dict[str, Any]) -> None:
+            if data := e.get("data"):
+                on_tick(data)
+
         unsub = subscribe_event(
             state["event_bus"],
             EVENT_TICK,
-            lambda e, h=tick_handler: h(e["data"]) if e.get("data") else None,
+            tick_callback,
         )
         unsubscribers.append(unsub)
 

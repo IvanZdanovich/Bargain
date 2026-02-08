@@ -80,28 +80,33 @@ async def replay_from_file(
 
             if data_type == "trade":
                 stats["trades"] += 1
-                if handler := handlers.get("on_trade"):
-                    handler(record.get("data", {}))
+                trade_handler = handlers.get("on_trade")
+                if trade_handler:
+                    trade_handler(record.get("data", {}))
 
             elif data_type == "candle":
                 stats["candles"] += 1
-                if handler := handlers.get("on_candle"):
-                    handler(record.get("data", {}))
+                candle_handler = handlers.get("on_candle")
+                if candle_handler:
+                    candle_handler(record.get("data", {}))
 
             elif data_type == "tick":
                 stats["ticks"] += 1
-                if handler := handlers.get("on_tick"):
-                    handler(record.get("data", {}))
+                tick_handler = handlers.get("on_tick")
+                if tick_handler:
+                    tick_handler(record.get("data", {}))
 
             elif data_type == "orderbook_snapshot":
                 stats["orderbook_snapshots"] += 1
-                if handler := handlers.get("on_orderbook_snapshot"):
-                    handler(record.get("data", {}))
+                snapshot_handler = handlers.get("on_orderbook_snapshot")
+                if snapshot_handler:
+                    snapshot_handler(record.get("data", {}))
 
             elif data_type == "orderbook_delta":
                 stats["orderbook_deltas"] += 1
-                if handler := handlers.get("on_orderbook_delta"):
-                    handler(record.get("data", {}))
+                delta_handler = handlers.get("on_orderbook_delta")
+                if delta_handler:
+                    delta_handler(record.get("data", {}))
 
     return stats
 
@@ -145,13 +150,15 @@ async def replay_from_records(
 
         if data_type == "trade":
             stats["trades"] += 1
-            if handler := handlers.get("on_trade"):
-                handler(record.get("data", {}))
+            trade_handler = handlers.get("on_trade")
+            if trade_handler:
+                trade_handler(record.get("data", {}))
 
         elif data_type == "candle":
             stats["candles"] += 1
-            if handler := handlers.get("on_candle"):
-                handler(record.get("data", {}))
+            candle_handler = handlers.get("on_candle")
+            if candle_handler:
+                candle_handler(record.get("data", {}))
 
         # Yield control
         await asyncio.sleep(0)

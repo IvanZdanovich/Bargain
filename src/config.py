@@ -16,7 +16,7 @@ Usage:
 
 import os
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any, TypedDict, cast
 
 import yaml
 
@@ -123,7 +123,7 @@ def load_config(config_path: Path | None = None) -> AppConfigData:
     if config_path is None:
         config_path = _config_dir / "default.yaml"
 
-    _config = _load_yaml(config_path)  # type: ignore
+    _config = cast(AppConfigData, _load_yaml(config_path))
     return _config
 
 
@@ -239,7 +239,8 @@ def get_full_config() -> AppConfigData:
     if _config is None:
         load_config()
 
-    return _config  # type: ignore
+    assert _config is not None, "Configuration failed to load"
+    return _config
 
 
 def reload_config() -> AppConfigData:
