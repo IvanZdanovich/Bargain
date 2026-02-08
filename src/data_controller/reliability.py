@@ -168,9 +168,7 @@ def validate_data_integrity(
         Tuple of (is_valid, list of missing fields).
     """
     missing = [
-        field
-        for field in required_fields
-        if field not in data or data[field] is None
+        field for field in required_fields if field not in data or data[field] is None
     ]
     return len(missing) == 0, missing
 
@@ -270,4 +268,3 @@ class CircuitBreaker:
         if self.is_available():
             return "half-open"
         return "open"
-

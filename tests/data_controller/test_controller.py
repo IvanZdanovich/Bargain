@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from src.types import ProviderConfigData, SubscriptionConfigData, HandlersData
+from src.types import ProviderConfigData, HandlersData
 from src.data_controller.controller import (
     create_controller,
     get_provider_status,
@@ -207,4 +207,3 @@ class TestGetAllProviderHealth:
         provider_names = [h["provider"] for h in health_list]
         assert "binance" in provider_names
         assert "binance_testnet" in provider_names
-

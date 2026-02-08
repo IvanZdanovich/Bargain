@@ -107,17 +107,17 @@ def raw_binance_rest_kline():
     """Raw Binance REST API kline response."""
     return [
         1672531140000,  # open time
-        "42000.00",     # open
-        "42100.00",     # high
-        "41900.00",     # low
-        "42050.00",     # close
-        "100.5",        # volume
+        "42000.00",  # open
+        "42100.00",  # high
+        "41900.00",  # low
+        "42050.00",  # close
+        "100.5",  # volume
         1672531199999,  # close time
-        "4220000.00",   # quote asset volume
-        150,            # number of trades
-        "50.0",         # taker buy base
-        "2100000.00",   # taker buy quote
-        "0",            # ignore
+        "4220000.00",  # quote asset volume
+        150,  # number of trades
+        "50.0",  # taker buy base
+        "2100000.00",  # taker buy quote
+        "0",  # ignore
     ]
 
 
@@ -307,4 +307,3 @@ class TestCreateBinanceProvider:
         rate_limiter = state["rate_limiter"]
         assert rate_limiter["max_tokens"] == 10
         assert rate_limiter["refill_rate"] == 10
-

@@ -13,9 +13,6 @@ from src.types import (
     SubscriptionConfigData,
     HistoricalRequestData,
     HandlersData,
-    TradeData,
-    CandleData,
-    TickData,
     OrderBookSnapshotData,
     ProviderStatus,
     ProviderHealthData,
@@ -298,7 +295,9 @@ def get_provider_status(state: dict[str, Any], provider_name: str) -> ProviderSt
     return provider_state["status"]
 
 
-def get_provider_health(state: dict[str, Any], provider_name: str) -> ProviderHealthData:
+def get_provider_health(
+    state: dict[str, Any], provider_name: str
+) -> ProviderHealthData:
     """
     Get health status of a provider.
 
@@ -354,10 +353,7 @@ def get_all_provider_health(state: dict[str, Any]) -> list[ProviderHealthData]:
     Returns:
         List of provider health data.
     """
-    return [
-        get_provider_health(state, name)
-        for name in state["providers"]
-    ]
+    return [get_provider_health(state, name) for name in state["providers"]]
 
 
 # === Internal Functions ===
@@ -369,16 +365,15 @@ async def _process_provider_messages(
     provider_state: dict[str, Any],
 ) -> None:
     """
-    Process incoming messages from a provider.
+    Process messages from provider and route to handlers/event bus.
 
     Args:
         controller_state: Controller state.
-        provider_name: Provider name.
+        provider_name: Name of provider.
         provider_state: Provider state.
 
     Side effects: Invokes handlers, emits events.
     """
-    handlers = controller_state["handlers"]
 
     try:
         if provider_name == "binance" or provider_name.startswith("binance"):
@@ -411,7 +406,9 @@ async def _process_provider_messages(
                 )
                 controller_state["tasks"].append(task)
             except Exception as reconnect_error:
-                logger.error(f"Reconnection failed for {provider_name}: {reconnect_error}")
+                logger.error(
+                    f"Reconnection failed for {provider_name}: {reconnect_error}"
+                )
 
 
 def _dispatch_event(
@@ -561,6 +558,7 @@ def create_strategy_feed(
     unsubscribers = []
 
     if on_trade:
+
         def trade_callback(e: dict[str, Any]) -> None:
             if data := e.get("data"):
                 on_trade(data)
@@ -573,6 +571,7 @@ def create_strategy_feed(
         unsubscribers.append(unsub)
 
     if on_candle:
+
         def candle_callback(e: dict[str, Any]) -> None:
             if data := e.get("data"):
                 on_candle(data)
@@ -585,6 +584,7 @@ def create_strategy_feed(
         unsubscribers.append(unsub)
 
     if on_tick:
+
         def tick_callback(e: dict[str, Any]) -> None:
             if data := e.get("data"):
                 on_tick(data)
@@ -599,4 +599,3 @@ def create_strategy_feed(
     return {
         "unsubscribe": lambda: [unsub() for unsub in unsubscribers],
     }
-

@@ -217,4 +217,3 @@ def get_current_timestamp_ms() -> int:
     import time
 
     return int(time.time() * 1000)
-

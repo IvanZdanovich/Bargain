@@ -213,4 +213,3 @@ class TestAsyncEventBus:
 
         assert len(sync_received) == 1
         assert len(async_received) == 1
-

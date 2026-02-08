@@ -25,6 +25,7 @@ import yaml
 
 class BinanceConfigData(TypedDict):
     """Binance provider configuration."""
+
     ws_url: str
     ws_url_testnet: str
     rest_url: str
@@ -40,6 +41,7 @@ class BinanceConfigData(TypedDict):
 
 class ProviderDefaultsData(TypedDict):
     """Default provider settings."""
+
     rate_limit_per_second: int
     reconnect_attempts: int
     reconnect_delay_ms: int
@@ -47,6 +49,7 @@ class ProviderDefaultsData(TypedDict):
 
 class ReliabilityConfigData(TypedDict):
     """Reliability/retry configuration."""
+
     max_attempts: int
     base_delay_ms: int
     max_delay_ms: int
@@ -56,23 +59,27 @@ class ReliabilityConfigData(TypedDict):
 
 class StorageConfigDefaultsData(TypedDict):
     """Storage default settings."""
+
     batch_size: int
     flush_interval_ms: int
 
 
 class ValidationConfigData(TypedDict):
     """Data validation configuration."""
+
     min_timestamp_ms: int
     max_timestamp_ms: int
 
 
 class NormalizationConfigData(TypedDict):
     """Symbol normalization configuration."""
+
     quote_currencies: list[str]
 
 
 class AppConfigData(TypedDict):
     """Full application configuration."""
+
     schema_version: str
     binance: BinanceConfigData
     provider_defaults: ProviderDefaultsData
@@ -294,4 +301,3 @@ def get_normalization_config() -> NormalizationConfigData:
 def get_schema_version() -> str:
     """Get current schema version."""
     return get_config("schema_version", "1.0.0")  # type: ignore
-

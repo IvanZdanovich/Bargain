@@ -202,4 +202,3 @@ def clear_subscribers(bus: dict[str, Any], event_type: str | None = None) -> Non
     else:
         bus["subscribers"].pop(event_type, None)
         bus["async_subscribers"].pop(event_type, None)
-

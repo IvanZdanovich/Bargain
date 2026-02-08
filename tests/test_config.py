@@ -1,8 +1,6 @@
 """Unit tests for configuration loading module."""
 
 import os
-import pytest
-from pathlib import Path
 from unittest.mock import patch
 
 from src.config import (
@@ -135,4 +133,3 @@ class TestReloadConfig:
         config = reload_config()
         assert "schema_version" in config
         assert "binance" in config
-

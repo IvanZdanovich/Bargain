@@ -11,8 +11,6 @@ from pathlib import Path
 from typing import AsyncIterator, Any
 
 from src.types import (
-    TradeData,
-    CandleData,
     HandlersData,
     DataType,
 )
@@ -255,11 +253,13 @@ def record_event(
     if not state["recording"]:
         return
 
-    state["records"].append({
-        "type": event_type,
-        "timestamp_ms": timestamp_ms,
-        "data": data,
-    })
+    state["records"].append(
+        {
+            "type": event_type,
+            "timestamp_ms": timestamp_ms,
+            "data": data,
+        }
+    )
 
 
 def save_recording(
@@ -283,4 +283,3 @@ def save_recording(
             f.write(json.dumps(record) + "\n")
 
     return len(records)
-

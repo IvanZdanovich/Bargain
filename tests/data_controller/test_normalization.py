@@ -146,6 +146,7 @@ class TestValidateTimestamp:
     def test_current_time_valid(self):
         """Accept current time."""
         import time
+
         current_ms = int(time.time() * 1000)
         assert validate_timestamp(current_ms) is True
 
@@ -243,4 +244,3 @@ class TestValidateOrderbookIntegrity:
         """Accept empty order book."""
         is_valid, error = validate_orderbook_integrity([], [])
         assert is_valid is True
-

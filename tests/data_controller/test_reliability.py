@@ -258,4 +258,3 @@ class TestCircuitBreaker:
 
         assert cb.is_available() is True
         assert cb.get_state() == "half-open"
-

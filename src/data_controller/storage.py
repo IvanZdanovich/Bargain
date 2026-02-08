@@ -133,6 +133,7 @@ async def flush_buffer(state: dict[str, Any]) -> None:
         state["buffer"].extend(records)
 
     import time
+
     state["last_flush_ms"] = int(time.time() * 1000)
 
 
@@ -213,4 +214,3 @@ async def pipe_to_storage(
         logger.error(f"Pipe to storage failed: {e}")
 
     return count
-

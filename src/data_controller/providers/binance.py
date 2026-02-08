@@ -45,7 +45,6 @@ from src.data_controller.reliability import (
 logger = logging.getLogger(__name__)
 
 
-
 def create_binance_provider(config: ProviderConfigData) -> dict[str, Any]:
     """
     Create Binance provider state container.
@@ -148,17 +147,27 @@ def parse_binance_candle(raw: dict[str, Any], provider_name: str) -> CandleData:
         interval=interval,
         open_time_ms=open_time,
         close_time_ms=close_time,
-        open=to_decimal(k.get("o", k.get("open", k[1] if isinstance(k, list) else "0"))),
-        high=to_decimal(k.get("h", k.get("high", k[2] if isinstance(k, list) else "0"))),
+        open=to_decimal(
+            k.get("o", k.get("open", k[1] if isinstance(k, list) else "0"))
+        ),
+        high=to_decimal(
+            k.get("h", k.get("high", k[2] if isinstance(k, list) else "0"))
+        ),
         low=to_decimal(k.get("l", k.get("low", k[3] if isinstance(k, list) else "0"))),
-        close=to_decimal(k.get("c", k.get("close", k[4] if isinstance(k, list) else "0"))),
-        volume=to_decimal(k.get("v", k.get("volume", k[5] if isinstance(k, list) else "0"))),
+        close=to_decimal(
+            k.get("c", k.get("close", k[4] if isinstance(k, list) else "0"))
+        ),
+        volume=to_decimal(
+            k.get("v", k.get("volume", k[5] if isinstance(k, list) else "0"))
+        ),
         is_closed=k.get("x", True),
         raw=raw,
     )
 
 
-def parse_binance_candle_rest(raw: list, symbol: str, interval: str, provider_name: str) -> CandleData:
+def parse_binance_candle_rest(
+    raw: list, symbol: str, interval: str, provider_name: str
+) -> CandleData:
     """
     Parse Binance REST kline response to normalized format.
 
@@ -552,9 +561,7 @@ async def fetch_binance_historical_candles(
             break
 
         for kline in data:
-            candle = parse_binance_candle_rest(
-                kline, symbol, interval, provider_name
-            )
+            candle = parse_binance_candle_rest(kline, symbol, interval, provider_name)
             yield candle
 
         # Move to next batch
@@ -817,4 +824,3 @@ def get_binance_health(state: dict[str, Any]) -> dict[str, Any]:
         "reconnect_count": state.get("reconnect_count", 0),
         "subscription_count": len(state.get("subscriptions", [])),
     }
-

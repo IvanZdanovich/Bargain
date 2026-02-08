@@ -12,7 +12,9 @@ from decimal import Decimal
 # === Enums as Literals ===
 Side = Literal["buy", "sell"]
 DataType = Literal["trade", "orderbook_snapshot", "orderbook_delta", "candle", "tick"]
-ProviderStatus = Literal["disconnected", "connecting", "connected", "error", "rate_limited"]
+ProviderStatus = Literal[
+    "disconnected", "connecting", "connected", "error", "rate_limited"
+]
 OperationMode = Literal["live", "historical", "replay"]
 
 # === Core Market Data Structures ===
@@ -20,6 +22,7 @@ OperationMode = Literal["live", "historical", "replay"]
 
 class TradeData(TypedDict):
     """Normalized trade record."""
+
     schema_version: str
     provider: str
     symbol: str
@@ -33,12 +36,14 @@ class TradeData(TypedDict):
 
 class OrderBookLevelData(TypedDict):
     """Single price level in order book."""
+
     price: Decimal
     quantity: Decimal
 
 
 class OrderBookSnapshotData(TypedDict):
     """Full order book snapshot."""
+
     schema_version: str
     provider: str
     symbol: str
@@ -51,6 +56,7 @@ class OrderBookSnapshotData(TypedDict):
 
 class OrderBookDeltaData(TypedDict):
     """Incremental order book update."""
+
     schema_version: str
     provider: str
     symbol: str
@@ -63,6 +69,7 @@ class OrderBookDeltaData(TypedDict):
 
 class CandleData(TypedDict):
     """OHLCV candle record."""
+
     schema_version: str
     provider: str
     symbol: str
@@ -80,6 +87,7 @@ class CandleData(TypedDict):
 
 class TickData(TypedDict):
     """Unified tick (best bid/ask + last trade)."""
+
     schema_version: str
     provider: str
     symbol: str
@@ -98,6 +106,7 @@ class TickData(TypedDict):
 
 class SubscriptionConfigData(TypedDict):
     """Subscription request configuration."""
+
     symbol: str
     data_types: Sequence[DataType]
     interval: str | None  # For candles
@@ -105,6 +114,7 @@ class SubscriptionConfigData(TypedDict):
 
 class ProviderConfigData(TypedDict):
     """Provider initialization configuration."""
+
     name: str
     api_key: str | None
     api_secret: str | None
@@ -116,6 +126,7 @@ class ProviderConfigData(TypedDict):
 
 class HistoricalRequestData(TypedDict):
     """Historical data fetch request."""
+
     symbol: str
     data_type: DataType
     start_time_ms: int
@@ -126,11 +137,14 @@ class HistoricalRequestData(TypedDict):
 
 # === Event Types ===
 
-MarketDataRecord = TradeData | CandleData | TickData | OrderBookSnapshotData | OrderBookDeltaData
+MarketDataRecord = (
+    TradeData | CandleData | TickData | OrderBookSnapshotData | OrderBookDeltaData
+)
 
 
 class MarketEventData(TypedDict):
     """Unified market event wrapper for event bus."""
+
     event_type: DataType
     provider: str
     symbol: str
@@ -140,6 +154,7 @@ class MarketEventData(TypedDict):
 
 class ErrorEventData(TypedDict):
     """Error event for event bus."""
+
     provider: str
     error_type: str
     message: str
@@ -149,6 +164,7 @@ class ErrorEventData(TypedDict):
 
 class StatusEventData(TypedDict):
     """Provider status change event."""
+
     provider: str
     old_status: ProviderStatus
     new_status: ProviderStatus
@@ -172,6 +188,7 @@ AsyncCandleHandlerFn = Callable[[CandleData], Awaitable[None]]
 
 class HandlersData(TypedDict, total=False):
     """Event handler callbacks for Data Controller."""
+
     on_trade: TradeHandlerFn
     on_orderbook_snapshot: OrderBookSnapshotHandlerFn
     on_orderbook_delta: OrderBookDeltaHandlerFn
@@ -190,6 +207,7 @@ EventSubscribeFn = Callable[[str, Callable[[dict[str, Any]], None]], Callable[[]
 
 class EventBusConfigData(TypedDict, total=False):
     """Event bus configuration."""
+
     emit: EventEmitFn
     async_emit: AsyncEventEmitFn
     subscribe: EventSubscribeFn
@@ -203,6 +221,7 @@ StorageBatchWriteFn = Callable[[Sequence[MarketDataRecord]], Awaitable[None]]
 
 class StorageConfigData(TypedDict, total=False):
     """Storage layer configuration."""
+
     write: StorageWriteFn
     batch_write: StorageBatchWriteFn
     enabled: bool
@@ -223,6 +242,7 @@ ParseTickFn = Callable[[dict[str, Any], str], TickData]
 
 class RateLimiterStateData(TypedDict):
     """Token bucket rate limiter state."""
+
     tokens: float
     max_tokens: int
     last_refill: float
@@ -234,6 +254,7 @@ class RateLimiterStateData(TypedDict):
 
 class ProviderHealthData(TypedDict):
     """Provider health status."""
+
     provider: str
     status: ProviderStatus
     last_message_ms: int | None
@@ -241,4 +262,3 @@ class ProviderHealthData(TypedDict):
     error_count: int
     reconnect_count: int
     latency_ms: float | None
-

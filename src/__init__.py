@@ -1,2 +1,1 @@
 """Bargain Trading Framework."""
-

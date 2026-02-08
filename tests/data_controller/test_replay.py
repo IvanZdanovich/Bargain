@@ -1,9 +1,7 @@
-"""Unit tests for replay mode."""
+"""Unit tests for replay functionality."""
 
 import pytest
-import asyncio
 from pathlib import Path
-from unittest.mock import MagicMock
 
 from src.types import HandlersData
 from src.data_controller.replay import (
@@ -14,7 +12,6 @@ from src.data_controller.replay import (
     stop_recording,
     record_event,
 )
-
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
@@ -169,4 +166,3 @@ class TestReplayRecorder:
         start_recording(recorder)
 
         assert len(recorder["records"]) == 0
-

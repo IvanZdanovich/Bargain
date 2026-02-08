@@ -28,4 +28,3 @@ __all__ = [
     "parse_binance_orderbook_snapshot",
     "parse_binance_ticker",
 ]
-
