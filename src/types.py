@@ -500,4 +500,3 @@ class StrategyInterfaceData(TypedDict, total=False):
 # Slippage and commission function types
 SlippageComputeFn = Callable[[OrderData, Decimal, Any], Decimal]
 CommissionComputeFn = Callable[[OrderData, Decimal], Decimal]
-

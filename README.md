@@ -182,7 +182,9 @@ examples/
 └── rsi_backtest.py      # RSI mean reversion with risk management
 
 tests/backtesting/
-└── test_controller.py   # Integration tests (3 tests passing)
+├── test_broker.py       # Broker tests (18 tests passing)
+├── test_controller.py   # Integration tests (3 tests passing)
+└── test_metrics.py      # Metrics tests (21 tests passing)
 ```
 
 ## Quick Example
@@ -308,7 +310,9 @@ black --check src tests
 ```bash
 # Run all quality checks at once (with auto-fix)
 ruff check --fix src tests && black src tests && flake8 src tests && mypy src tests && pytest
+```
 
+```bash
 # Or without auto-fixing
 black --check src tests && ruff check src tests && flake8 src tests && mypy src tests && pytest
 ```

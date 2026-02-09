@@ -2,8 +2,6 @@
 
 from decimal import Decimal
 
-import pytest
-
 from src.backtesting import StrategyBase, StrategyContext, run_backtest
 from src.backtesting.feed import create_feed_from_candles
 from src.config import SCHEMA_VERSION

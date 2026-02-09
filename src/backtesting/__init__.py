@@ -42,4 +42,3 @@ __all__ = [
     "MarketDataFeed",
     "compute_metrics",
 ]
-

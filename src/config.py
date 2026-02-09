@@ -298,3 +298,15 @@ def get_normalization_config() -> NormalizationConfigData:
 def get_schema_version() -> str:
     """Get current schema version."""
     return get_config("schema_version", "1.0.0")  # type: ignore
+
+
+# === Constants ===
+
+# Schema version for backward compatibility checks
+SCHEMA_VERSION = get_schema_version()
+
+
+# === Schema Version Constant ===
+
+# Centralized schema version constant for easy import
+SCHEMA_VERSION = "1.0.0"
