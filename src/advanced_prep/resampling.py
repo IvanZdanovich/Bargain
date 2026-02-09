@@ -4,7 +4,6 @@ Tick-to-candle resampling with incremental updates.
 Converts tick data into OHLCV candles with VWAP, supporting streaming updates.
 """
 
-
 from src.types import ResampledCandleData, TickData
 
 
@@ -49,11 +48,17 @@ class CandleResampler:
 
         # Check if we need to finalize current candle
         finalized_candle = None
-        if self._current_candle and candle_open_time >= self._current_candle["close_time_ms"]:
+        if (
+            self._current_candle
+            and candle_open_time >= self._current_candle["close_time_ms"]
+        ):
             finalized_candle = self._finalize_candle()
 
         # Initialize or update current candle
-        if self._current_candle is None or candle_open_time >= self._current_candle["close_time_ms"]:
+        if (
+            self._current_candle is None
+            or candle_open_time >= self._current_candle["close_time_ms"]
+        ):
             self._current_candle = {  # type: ignore[typeddict-item]
                 "open_time_ms": candle_open_time,
                 "close_time_ms": candle_close_time,
@@ -78,7 +83,9 @@ class CandleResampler:
             new_volume = old_volume + quantity
 
             if new_volume > 0:
-                self._current_candle["vwap"] = (old_vwap * old_volume + price * quantity) / new_volume
+                self._current_candle["vwap"] = (
+                    old_vwap * old_volume + price * quantity
+                ) / new_volume
 
             self._current_candle["volume"] = new_volume
             self._current_candle["tick_count"] += 1
@@ -181,7 +188,9 @@ def parse_timeframe_to_ms(timeframe: str) -> int:
     }
 
     if unit not in multipliers:
-        raise ValueError(f"Invalid timeframe unit '{unit}' in {timeframe}. Use s/m/h/d.")
+        raise ValueError(
+            f"Invalid timeframe unit '{unit}' in {timeframe}. Use s/m/h/d."
+        )
 
     return value * multipliers[unit]
 
@@ -204,4 +213,3 @@ def format_timeframe(timeframe_ms: int) -> str:
     if timeframe_ms % (60 * 1000) == 0:
         return f"{timeframe_ms // (60 * 1000)}m"
     return f"{timeframe_ms // 1000}s"
-

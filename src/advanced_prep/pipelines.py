@@ -226,7 +226,9 @@ class MultiTimeframePipeline:
         """
         return self._build_snapshot()
 
-    def get_candle_history(self, timeframe_ms: int, count: int = 100) -> list[ResampledCandleData]:
+    def get_candle_history(
+        self, timeframe_ms: int, count: int = 100
+    ) -> list[ResampledCandleData]:
         """
         Get candle history for a timeframe.
 
@@ -281,4 +283,3 @@ def create_pipeline(
         on_candle=on_candle,
         on_multi_tf_ready=on_multi_tf_ready,
     )
-

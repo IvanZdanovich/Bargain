@@ -151,8 +151,12 @@ class TestATR:
         """Test streaming ATR updates."""
         state = init_atr_state(2)
 
-        state = update_atr_streaming(state, Decimal("110"), Decimal("90"), Decimal("100"))
-        state = update_atr_streaming(state, Decimal("120"), Decimal("95"), Decimal("110"))
+        state = update_atr_streaming(
+            state, Decimal("110"), Decimal("90"), Decimal("100")
+        )
+        state = update_atr_streaming(
+            state, Decimal("120"), Decimal("95"), Decimal("110")
+        )
 
         # After 2 periods, window should be full
         assert state.tr_window.is_full()
@@ -199,4 +203,3 @@ class TestHelpers:
 
         result = compute_log_return(Decimal("100"), Decimal("0"))
         assert result == Decimal("0")
-

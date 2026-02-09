@@ -121,7 +121,9 @@ def compute_wma(values: Sequence[Decimal], period: int) -> list[Decimal]:
     result: list[Decimal] = []
     for i in range(period - 1, len(values)):
         window = values[i - period + 1 : i + 1]
-        wma = Decimal(sum(w * v for w, v in zip(weights, window, strict=True))) / Decimal(weight_sum)
+        wma = Decimal(
+            sum(w * v for w, v in zip(weights, window, strict=True))
+        ) / Decimal(weight_sum)
         result.append(wma)
 
     return result
@@ -181,7 +183,10 @@ def compute_true_range(
 
 
 def compute_atr_batch(
-    highs: Sequence[Decimal], lows: Sequence[Decimal], closes: Sequence[Decimal], period: int
+    highs: Sequence[Decimal],
+    lows: Sequence[Decimal],
+    closes: Sequence[Decimal],
+    period: int,
 ) -> list[Decimal]:
     """
     Compute Average True Range (batch).
@@ -408,7 +413,9 @@ def update_rsi_streaming(state: RSIState, new_price: Decimal) -> RSIState:
 # === Volatility Indicators ===
 
 
-def compute_rolling_volatility(returns: Sequence[Decimal], period: int) -> list[Decimal]:
+def compute_rolling_volatility(
+    returns: Sequence[Decimal], period: int
+) -> list[Decimal]:
     """
     Compute rolling volatility (standard deviation of returns).
 
@@ -534,5 +541,3 @@ def compute_rsi(prices: Sequence[Decimal], period: int = 14) -> list[Decimal]:
         result.append(rsi)
 
     return result
-
-

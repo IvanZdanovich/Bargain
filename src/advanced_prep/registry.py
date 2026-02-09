@@ -186,4 +186,3 @@ def register_default_indicators() -> None:
         with contextlib.suppress(ValueError):
             # Already registered, skip
             register_indicator(indicator)
-

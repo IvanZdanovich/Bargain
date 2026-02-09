@@ -162,4 +162,3 @@ class TestBatchFunctions:
         # Test zero std
         z_score_zero = compute_z_score(value, mean, Decimal(0))
         assert z_score_zero == Decimal(0)
-

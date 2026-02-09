@@ -6,7 +6,11 @@ from decimal import Decimal
 
 import pytest
 
-from src.advanced_prep.pipelines import MultiTimeframePipeline, PipelineConfig, create_pipeline
+from src.advanced_prep.pipelines import (
+    MultiTimeframePipeline,
+    PipelineConfig,
+    create_pipeline,
+)
 from src.types import MultiTimeframeSnapshotData, ResampledCandleData, TickData
 
 
@@ -184,7 +188,9 @@ class TestMultiTimeframePipeline:
             # Finalize by crossing boundary
             if i < 4:
                 next_time = 60000 * (i + 2)
-                pipeline.process_tick(create_test_tick(next_time, str(50000 + (i + 1) * 100)))
+                pipeline.process_tick(
+                    create_test_tick(next_time, str(50000 + (i + 1) * 100))
+                )
 
         history = pipeline.get_candle_history(60000, count=3)
         assert len(history) <= 3
@@ -213,4 +219,3 @@ class TestCreatePipeline:
         pipeline = create_pipeline("BTCUSDT", ["1m"], on_candle=on_candle)
 
         assert pipeline._on_candle is not None
-

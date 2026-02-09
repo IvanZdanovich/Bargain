@@ -210,4 +210,3 @@ class TestCreateMultiSymbolPipeline:
         )
 
         assert pipeline._on_candle is not None
-

@@ -139,7 +139,7 @@ class TestCandlePatterns:
     def test_morning_star(self) -> None:
         """Test Morning Star pattern."""
         candle1 = create_candle("105", "105", "100", "100")  # Bearish
-        candle2 = create_candle("100", "101", "99", "100")   # Small/doji
+        candle2 = create_candle("100", "101", "99", "100")  # Small/doji
         candle3 = create_candle("100", "110", "100", "108")  # Bullish
 
         assert is_morning_star(candle1, candle2, candle3)
@@ -148,7 +148,7 @@ class TestCandlePatterns:
         """Test Evening Star pattern."""
         candle1 = create_candle("100", "105", "100", "105")  # Bullish
         candle2 = create_candle("105", "106", "104", "105")  # Small/doji
-        candle3 = create_candle("105", "105", "95", "97")    # Bearish
+        candle3 = create_candle("105", "105", "95", "97")  # Bearish
 
         assert is_evening_star(candle1, candle2, candle3)
 
@@ -182,4 +182,3 @@ class TestCandlePatterns:
         ]
         patterns = detect_candle_pattern(candles)
         assert "bullish_engulfing" in patterns
-

@@ -8,7 +8,9 @@ from decimal import Decimal
 from typing import Any
 
 
-def safe_divide(numerator: Decimal, denominator: Decimal, default: Decimal = Decimal(0)) -> Decimal:
+def safe_divide(
+    numerator: Decimal, denominator: Decimal, default: Decimal = Decimal(0)
+) -> Decimal:
     """
     Safely divide, returning default if denominator is zero.
 
@@ -157,4 +159,3 @@ def batch_to_chunks(items: list[Any], chunk_size: int) -> list[list[Any]]:
         raise ValueError(f"Chunk size must be positive, got {chunk_size}")
 
     return [items[i : i + chunk_size] for i in range(0, len(items), chunk_size)]
-

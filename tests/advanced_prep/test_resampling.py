@@ -166,7 +166,9 @@ class TestCandleResampler:
         current = resampler.get_current_candle()
         # VWAP = (100*10 + 200*5) / (10+5) = 2000/15 = 133.333...
         assert current is not None
-        expected_vwap = (Decimal("100") * Decimal("10") + Decimal("200") * Decimal("5")) / Decimal("15")
+        expected_vwap = (
+            Decimal("100") * Decimal("10") + Decimal("200") * Decimal("5")
+        ) / Decimal("15")
         assert abs(current["vwap"] - expected_vwap) < Decimal("0.001")
 
     def test_reset(self) -> None:
@@ -225,4 +227,3 @@ class TestTimeframeUtils:
         assert format_timeframe(300000) == "5m"
         assert format_timeframe(3600000) == "1h"
         assert format_timeframe(86400000) == "1d"
-

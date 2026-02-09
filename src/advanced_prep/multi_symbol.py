@@ -82,7 +82,9 @@ class MultiSymbolPipeline:
             self._pipelines[symbol] = MultiTimeframePipeline(
                 config=pipeline_config,
                 on_candle=self._wrap_candle_callback(symbol) if on_candle else None,
-                on_multi_tf_ready=self._wrap_snapshot_callback(symbol) if on_symbol_ready else None,
+                on_multi_tf_ready=(
+                    self._wrap_snapshot_callback(symbol) if on_symbol_ready else None
+                ),
             )
 
         # Track last update timestamps per symbol
@@ -129,7 +131,9 @@ class MultiSymbolPipeline:
             # Check if all symbols have recent data
             if self._on_all_symbols_ready and self._all_symbols_updated():
                 all_snapshots = {
-                    sym: snap for sym, snap in self._snapshots.items() if snap is not None
+                    sym: snap
+                    for sym, snap in self._snapshots.items()
+                    if snap is not None
                 }
                 if len(all_snapshots) == len(self._config.symbols):
                     self._on_all_symbols_ready(all_snapshots)
@@ -261,4 +265,3 @@ def create_multi_symbol_pipeline(
         on_symbol_ready=on_symbol_ready,
         on_all_symbols_ready=on_all_symbols_ready,
     )
-

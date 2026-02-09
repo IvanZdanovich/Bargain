@@ -214,4 +214,3 @@ class TestCandleAnalysis:
         """Test candle range computation."""
         candle = create_test_candle("100", "110", "90", "105")
         assert compute_candle_range(candle) == Decimal("20")
-
