@@ -309,8 +309,8 @@ def is_hammer(
     # Long lower wick
     if trend == "down":
         return (lower_wick / body_size) >= lower_wick_ratio and upper_wick < body_size
-    else:  # inverted hammer
-        return (upper_wick / body_size) >= lower_wick_ratio and lower_wick < body_size
+    # inverted hammer
+    return (upper_wick / body_size) >= lower_wick_ratio and lower_wick < body_size
 
 
 def is_shooting_star(

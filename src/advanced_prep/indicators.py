@@ -5,9 +5,9 @@ Provides pure functions for indicators (EMA, SMA, ATR, etc.) with stateful
 streaming support for hot-loop optimization.
 """
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Sequence
 
 from src.advanced_prep.rolling import RollingWindow
 
@@ -64,11 +64,11 @@ def compute_sma(values: Sequence[Decimal], period: int) -> list[Decimal]:
 
     result: list[Decimal] = []
     window_sum = sum(values[:period])
-    result.append(window_sum / period)
+    result.append(Decimal(window_sum) / Decimal(period))
 
     for i in range(period, len(values)):
         window_sum = window_sum - values[i - period] + values[i]
-        result.append(window_sum / period)
+        result.append(Decimal(window_sum) / Decimal(period))
 
     return result
 
@@ -121,7 +121,7 @@ def compute_wma(values: Sequence[Decimal], period: int) -> list[Decimal]:
     result: list[Decimal] = []
     for i in range(period - 1, len(values)):
         window = values[i - period + 1 : i + 1]
-        wma = sum(w * v for w, v in zip(weights, window)) / weight_sum
+        wma = Decimal(sum(w * v for w, v in zip(weights, window, strict=True))) / Decimal(weight_sum)
         result.append(wma)
 
     return result
@@ -147,7 +147,7 @@ def compute_vwap_batch(
     cumulative_pv = Decimal(0)
     cumulative_volume = Decimal(0)
 
-    for price, volume in zip(prices, volumes):
+    for price, volume in zip(prices, volumes, strict=True):
         cumulative_pv += price * volume
         cumulative_volume += volume
         vwap = cumulative_pv / cumulative_volume if cumulative_volume > 0 else price
@@ -425,8 +425,8 @@ def compute_rolling_volatility(returns: Sequence[Decimal], period: int) -> list[
     result: list[Decimal] = []
     for i in range(period, len(returns) + 1):
         window = returns[i - period : i]
-        mean = sum(window) / period
-        variance = sum((r - mean) ** 2 for r in window) / period
+        mean = Decimal(sum(window)) / Decimal(period)
+        variance = Decimal(sum((r - mean) ** 2 for r in window)) / Decimal(period)
         vol = variance.sqrt() if variance > 0 else Decimal(0)
         result.append(vol)
 
@@ -507,8 +507,8 @@ def compute_rsi(prices: Sequence[Decimal], period: int = 14) -> list[Decimal]:
     if len(gains) < period:
         return [Decimal("50")] * len(prices)
 
-    avg_gain = sum(gains[:period]) / period
-    avg_loss = sum(losses[:period]) / period
+    avg_gain = Decimal(sum(gains[:period])) / Decimal(period)
+    avg_loss = Decimal(sum(losses[:period])) / Decimal(period)
 
     # Calculate first RSI
     if avg_loss == 0:
@@ -522,8 +522,8 @@ def compute_rsi(prices: Sequence[Decimal], period: int = 14) -> list[Decimal]:
 
     # Subsequent RSI uses smoothed averages (Wilder's smoothing)
     for i in range(period, len(gains)):
-        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
-        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+        avg_gain = (avg_gain * Decimal(period - 1) + gains[i]) / Decimal(period)
+        avg_loss = (avg_loss * Decimal(period - 1) + losses[i]) / Decimal(period)
 
         if avg_loss == 0:
             rsi = Decimal("100")

@@ -5,8 +5,8 @@ Manages multiple MultiTimeframePipeline instances for different symbols
 with efficient resource sharing and coordinated updates.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from src.advanced_prep.pipelines import MultiTimeframePipeline, PipelineConfig
 from src.types import (
@@ -86,10 +86,10 @@ class MultiSymbolPipeline:
             )
 
         # Track last update timestamps per symbol
-        self._last_updates: dict[str, int] = {symbol: 0 for symbol in config.symbols}
-        self._snapshots: dict[str, MultiTimeframeSnapshotData | None] = {
-            symbol: None for symbol in config.symbols
-        }
+        self._last_updates: dict[str, int] = dict.fromkeys(config.symbols, 0)
+        self._snapshots: dict[str, MultiTimeframeSnapshotData | None] = dict.fromkeys(
+            config.symbols, None
+        )
 
     def _wrap_candle_callback(self, symbol: str) -> CandleEmitFn:
         """
@@ -225,8 +225,8 @@ class MultiSymbolPipeline:
         else:
             for pipeline in self._pipelines.values():
                 pipeline.reset()
-            self._snapshots = {symbol: None for symbol in self._config.symbols}
-            self._last_updates = {symbol: 0 for symbol in self._config.symbols}
+            self._snapshots = dict.fromkeys(self._config.symbols, None)
+            self._last_updates = dict.fromkeys(self._config.symbols, 0)
 
 
 def create_multi_symbol_pipeline(

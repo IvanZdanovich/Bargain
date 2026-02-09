@@ -5,8 +5,10 @@ Provides registration, lookup, and validation for indicators with their
 parameters and computation functions.
 """
 
+import contextlib
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from src.types import IndicatorComputeFn
 
@@ -181,9 +183,7 @@ def register_default_indicators() -> None:
     ]
 
     for indicator in indicators:
-        try:
-            register_indicator(indicator)
-        except ValueError:
+        with contextlib.suppress(ValueError):
             # Already registered, skip
-            pass
+            register_indicator(indicator)
 

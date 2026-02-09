@@ -5,8 +5,8 @@ Provides efficient rolling statistics and window management for streaming data.
 """
 
 from collections import deque
+from collections.abc import Sequence
 from decimal import Decimal
-from typing import Sequence
 
 
 class RollingWindow:
@@ -169,11 +169,11 @@ def compute_rolling_mean(values: Sequence[Decimal], window: int) -> list[Decimal
 
     result: list[Decimal] = []
     window_sum = sum(values[:window])
-    result.append(window_sum / window)
+    result.append(Decimal(window_sum) / Decimal(window))
 
     for i in range(window, len(values)):
         window_sum = window_sum - values[i - window] + values[i]
-        result.append(window_sum / window)
+        result.append(Decimal(window_sum) / Decimal(window))
 
     return result
 
@@ -195,8 +195,8 @@ def compute_rolling_std(values: Sequence[Decimal], window: int) -> list[Decimal]
     result: list[Decimal] = []
     for i in range(window, len(values) + 1):
         window_values = values[i - window : i]
-        mean = sum(window_values) / window
-        variance = sum((v - mean) ** 2 for v in window_values) / window
+        mean = Decimal(sum(window_values)) / Decimal(window)
+        variance = Decimal(sum((v - mean) ** 2 for v in window_values)) / Decimal(window)
         result.append(variance.sqrt() if variance > 0 else Decimal(0))
 
     return result
