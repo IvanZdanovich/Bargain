@@ -318,3 +318,186 @@ StreamingUpdateFn = Callable[[IndicatorStateData, Decimal], IndicatorStateData]
 
 CandleEmitFn = Callable[[str, ResampledCandleData], None]
 MultiTimeframeReadyFn = Callable[[MultiTimeframeSnapshotData], None]
+
+
+# === Backtesting Types ===
+
+# Order types
+OrderType = Literal["market", "limit", "stop", "stop_limit"]
+OrderStatus = Literal["new", "partially_filled", "filled", "canceled", "rejected"]
+TimeInForce = Literal["GTC", "IOC", "FOK", "DAY"]
+
+
+class OrderData(TypedDict):
+    """Order record for backtesting and live trading."""
+
+    order_id: str
+    symbol: str
+    side: Side
+    order_type: OrderType
+    status: OrderStatus
+    quantity: Decimal
+    filled_quantity: Decimal
+    limit_price: Decimal | None
+    stop_price: Decimal | None
+    time_in_force: TimeInForce
+    submit_time_ms: int
+    update_time_ms: int
+
+
+class FillData(TypedDict):
+    """Order fill event."""
+
+    fill_id: str
+    order_id: str
+    symbol: str
+    side: Side
+    timestamp_ms: int
+    price: Decimal
+    quantity: Decimal
+    fee: Decimal
+    slippage: Decimal
+    realized_pnl: Decimal | None
+
+
+class PositionData(TypedDict):
+    """Position state for a symbol."""
+
+    symbol: str
+    quantity: Decimal
+    avg_entry_price: Decimal
+    market_price: Decimal
+    market_value: Decimal
+    unrealized_pnl: Decimal
+    realized_pnl: Decimal
+
+
+class PortfolioStateData(TypedDict):
+    """Portfolio state snapshot."""
+
+    timestamp_ms: int
+    cash: Decimal
+    equity: Decimal
+    unrealized_pnl: Decimal
+    realized_pnl: Decimal
+    positions: dict[str, PositionData]
+
+
+class TradeLogEntryData(TypedDict):
+    """Trade log entry for analysis."""
+
+    trade_id: str
+    order_id: str
+    symbol: str
+    side: Side
+    timestamp_ms: int
+    price: Decimal
+    quantity: Decimal
+    fee: Decimal
+    slippage: Decimal
+    realized_pnl: Decimal | None
+
+
+class EquityPointData(TypedDict):
+    """Equity curve data point."""
+
+    timestamp_ms: int
+    equity: Decimal
+    cash: Decimal
+    unrealized_pnl: Decimal
+    realized_pnl: Decimal
+
+
+class BacktestMetricsData(TypedDict):
+    """Backtest performance metrics."""
+
+    total_return: Decimal
+    annualized_return: Decimal
+    volatility: Decimal
+    sharpe_ratio: Decimal
+    max_drawdown: Decimal
+    max_drawdown_duration_ms: int
+    win_rate: Decimal
+    avg_win: Decimal
+    avg_loss: Decimal
+    profit_factor: Decimal
+    total_trades: int
+    winning_trades: int
+    losing_trades: int
+    avg_trade_duration_ms: int
+    exposure: Decimal
+    turnover: Decimal
+
+
+class BacktestResultData(TypedDict):
+    """Complete backtest result."""
+
+    config: dict[str, Any]
+    metrics: BacktestMetricsData
+    equity_curve: list[EquityPointData]
+    positions: list[PositionData]
+    trades: list[TradeLogEntryData]
+    orders: list[OrderData]
+    debug_traces: list[dict[str, Any]]
+
+
+class BacktestConfigData(TypedDict, total=False):
+    """Backtest configuration."""
+
+    # General
+    symbols: list[str]
+    start_time_ms: int
+    end_time_ms: int
+    timeframe: str
+    mode: Literal["event_driven", "vectorized"]
+    initial_cash: Decimal
+    base_currency: str
+
+    # Execution model
+    slippage_model: str  # "fixed_bps", "percentage", "spread_based", "custom"
+    slippage_bps: Decimal
+    commission_model: str  # "fixed", "percentage", "tiered"
+    commission_rate: Decimal
+    latency_ms: int
+    order_matching: str  # "bar_based", "tick_based", "realistic"
+
+    # Risk constraints
+    max_leverage: Decimal
+    max_position_size: Decimal
+    max_notional: Decimal
+    allow_short: bool
+
+    # Logging and output
+    record_equity_curve: bool
+    record_positions: bool
+    record_orders: bool
+    record_trades: bool
+    log_level: str
+    random_seed: int
+
+
+# Strategy callback types
+StrategyContextData = dict[str, Any]  # Will be refined in implementation
+OnStartFn = Callable[[StrategyContextData], None]
+OnEndFn = Callable[[StrategyContextData], None]
+OnBarFn = Callable[[StrategyContextData, CandleData], None]
+OnTickFn = Callable[[StrategyContextData, TickData], None]
+OnFillFn = Callable[[StrategyContextData, FillData], None]
+OnOrderUpdateFn = Callable[[StrategyContextData, OrderData], None]
+
+
+class StrategyInterfaceData(TypedDict, total=False):
+    """Strategy interface with callbacks."""
+
+    on_start: OnStartFn
+    on_end: OnEndFn
+    on_bar: OnBarFn
+    on_tick: OnTickFn
+    on_fill: OnFillFn
+    on_order_update: OnOrderUpdateFn
+
+
+# Slippage and commission function types
+SlippageComputeFn = Callable[[OrderData, Decimal, Any], Decimal]
+CommissionComputeFn = Callable[[OrderData, Decimal], Decimal]
+

@@ -1,5 +1,10 @@
 # Bargain
 
+High-performance trading framework with unified market data ingestion, advanced data preparation, and deterministic
+backtesting.
+
+---
+
 # Data Controller — Implementation Summary
 
 ## Module Structure
@@ -37,51 +42,57 @@ examples/
 ## **Key Features Implemented**
 
 ### **Provider Abstraction Layer**
-- Unified provider interface  
-- Binance Spot & Testnet support  
-- WebSocket streaming + REST historical fetch  
+
+- Unified provider interface
+- Binance Spot & Testnet support
+- WebSocket streaming + REST historical fetch
 - Pure parsing functions for:
-  - trades  
-  - candles  
-  - order books  
-  - ticks  
+    - trades
+    - candles
+    - order books
+    - ticks
 
 ---
 
 ### **Data Normalization**
-- Symbol normalization (`BTCUSDT → BTC/USDT`)  
-- Side normalization (`buy/sell`)  
-- Timestamp and sequence validation  
-- Order book integrity checks  
+
+- Symbol normalization (`BTCUSDT → BTC/USDT`)
+- Side normalization (`buy/sell`)
+- Timestamp and sequence validation
+- Order book integrity checks
 
 ---
 
 ### **Error Handling & Reliability**
-- Exponential backoff retry  
-- Token‑bucket rate limiting  
-- Circuit breaker pattern  
-- Automatic reconnection  
+
+- Exponential backoff retry
+- Token‑bucket rate limiting
+- Circuit breaker pattern
+- Automatic reconnection
 
 ---
 
 ### **Event Bus Integration**
-- Sync & async subscribers  
-- Decoupled event delivery  
-- Strategy component integration  
+
+- Sync & async subscribers
+- Decoupled event delivery
+- Strategy component integration
 
 ---
 
 ### **Storage Layer**
-- Buffered async writes  
-- Batch operations  
-- Configurable flush intervals  
+
+- Buffered async writes
+- Batch operations
+- Configurable flush intervals
 
 ---
 
 ### **Modes of Operation**
-- **Live streaming mode**  
-- **Historical batch mode**  
-- **Replay mode for backtesting**  
+
+- **Live streaming mode**
+- **Historical batch mode**
+- **Replay mode for backtesting**
 
 ---
 
@@ -89,7 +100,9 @@ examples/
 
 ## Overview
 
-The Advanced Data Preparation subsystem transforms raw, normalized market data into enriched, multi-timeframe, and feature-rich series optimized for strategy execution. It bridges the Data Controller and the Strategy Engine, ensuring downstream components receive clean, aligned, and computationally efficient data.
+The Advanced Data Preparation subsystem transforms raw, normalized market data into enriched, multi-timeframe, and
+feature-rich series optimized for strategy execution. It bridges the Data Controller and the Strategy Engine, ensuring
+downstream components receive clean, aligned, and computationally efficient data.
 
 ## Features
 
@@ -134,6 +147,114 @@ Data Controller → Normalized Ticks → Advanced Prep → Strategy Engine
                     ↓                               ↓
               Heiken Ashi                     Multi-TF Snapshot
 ```
+
+---
+
+# Backtesting Controller
+
+## Overview
+
+The Backtesting Controller enables deterministic historical simulation of trading strategies with realistic execution modeling. The same strategy code works identically in both backtesting and live trading environments.
+
+## Key Features
+
+- ✅ **Deterministic simulations** - Same data + config + seed = identical results
+- ✅ **Event-driven engine** - Process market events chronologically with realistic timing
+- ✅ **Realistic execution** - Configurable slippage, commissions, and latency
+- ✅ **Strategy/live parity** - Identical interfaces for backtest and live modes
+- ✅ **Comprehensive metrics** - Returns, Sharpe ratio, drawdown, win rate, profit factor
+- ✅ **Complete audit trail** - Order log, trade log, equity curve, position tracking
+
+## Module Structure
+
+```
+src/backtesting/
+├── __init__.py          # Public API
+├── controller.py        # Main backtest engine
+├── strategy.py          # Strategy base class and context
+├── broker.py            # Simulated broker and execution
+├── feed.py              # Market data feed
+├── clock.py             # Simulation clock and portfolio accessor
+└── metrics.py           # Performance metrics computation
+
+examples/
+├── simple_backtest.py   # Basic momentum strategy
+└── rsi_backtest.py      # RSI mean reversion with risk management
+
+tests/backtesting/
+└── test_controller.py   # Integration tests (3 tests passing)
+```
+
+## Quick Example
+
+```python
+from decimal import Decimal
+from src.backtesting import run_backtest, StrategyBase, StrategyContext
+from src.types import CandleData, BacktestConfigData
+
+class RSIStrategy(StrategyBase):
+    def on_bar(self, context: StrategyContext, bar: CandleData) -> None:
+        rsi = compute_rsi(self.prices)
+        if rsi < 30:  # Oversold
+            qty = context.portfolio.cash * Decimal("0.2") / bar["close"]
+            context.broker.market_order(bar["symbol"], "buy", qty, bar["open_time_ms"])
+
+config: BacktestConfigData = {
+    "symbols": ["BTC/USDT"],
+    "initial_cash": Decimal("10000"),
+    "commission_rate": Decimal("0.001"),
+    "random_seed": 42,
+}
+
+result = run_backtest(RSIStrategy(), feed, config)
+print(f"Return: {float(result['metrics']['total_return']) * 100:.2f}%")
+print(f"Sharpe: {float(result['metrics']['sharpe_ratio']):.2f}")
+```
+
+## Strategy Interface
+
+```python
+class MyStrategy(StrategyBase):
+    def on_start(self, context: StrategyContext) -> None:
+        # Initialize strategy state
+        self.position = Decimal("0")
+    
+    def on_bar(self, context: StrategyContext, bar: CandleData) -> None:
+        # Process each bar and generate signals
+        if should_buy():
+            context.broker.market_order(symbol, "buy", quantity, timestamp)
+    
+    def on_fill(self, context: StrategyContext, fill: FillData) -> None:
+        # Handle order fills
+        logger.info(f"Filled: {fill['quantity']} @ {fill['price']}")
+```
+
+## Broker API
+
+```python
+# Place orders
+context.broker.market_order(symbol, side, quantity, timestamp)
+context.broker.limit_order(symbol, side, quantity, limit_price, timestamp)
+context.broker.cancel_order(order_id, timestamp)
+
+# Query portfolio
+cash = context.portfolio.cash
+equity = context.portfolio.equity
+position = context.portfolio.get_position(symbol)
+has_position = context.portfolio.has_position(symbol)
+```
+
+## Performance Metrics
+
+The backtest result includes:
+- **Returns**: Total, annualized, volatility
+- **Risk-adjusted**: Sharpe ratio, max drawdown (with duration)
+- **Trade statistics**: Win rate, profit factor, avg win/loss
+- **Logs**: Equity curve, positions, orders, trades with realized PnL
+
+## Documentation
+
+See [docs/backtesting-guide.md](docs/backtesting-guide.md) for complete documentation.
 
 ---
 
