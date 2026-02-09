@@ -375,6 +375,9 @@ def update_rsi_streaming(state: RSIState, new_price: Decimal) -> RSIState:
         )
 
     # Use Wilder's smoothing method
+    avg_gain: Decimal
+    avg_loss: Decimal
+
     if state.avg_gain == 0 and state.avg_loss == 0:
         # First calculation - simple average
         avg_gain = state.gains.mean()
