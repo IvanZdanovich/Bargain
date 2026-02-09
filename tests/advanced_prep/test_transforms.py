@@ -24,9 +24,7 @@ from src.advanced_prep.transforms import (
 from src.types import ResampledCandleData
 
 
-def create_test_candle(
-    open_price: str, high: str, low: str, close: str
-) -> ResampledCandleData:
+def create_test_candle(open_price: str, high: str, low: str, close: str) -> ResampledCandleData:
     """Helper to create test candle."""
     return {
         "open_time_ms": 60000,

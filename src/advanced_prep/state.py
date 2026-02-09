@@ -69,9 +69,7 @@ class StreamingState:
             Creates state if it doesn't exist.
         """
         if timeframe_ms not in self.timeframe_states:
-            self.timeframe_states[timeframe_ms] = TimeframeState(
-                timeframe_ms=timeframe_ms
-            )
+            self.timeframe_states[timeframe_ms] = TimeframeState(timeframe_ms=timeframe_ms)
         return self.timeframe_states[timeframe_ms]
 
     def update_candle(self, timeframe_ms: int, candle: ResampledCandleData) -> None:
@@ -88,10 +86,7 @@ class StreamingState:
         state = self.get_or_create_timeframe_state(timeframe_ms)
 
         # Move last candle to prev if new candle starts different period
-        if (
-            state.last_candle
-            and candle["open_time_ms"] != state.last_candle["open_time_ms"]
-        ):
+        if state.last_candle and candle["open_time_ms"] != state.last_candle["open_time_ms"]:
             state.prev_candle = state.last_candle
 
             # Add to history if finalized

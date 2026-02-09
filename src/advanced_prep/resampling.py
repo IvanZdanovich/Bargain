@@ -48,10 +48,7 @@ class CandleResampler:
 
         # Check if we need to finalize current candle
         finalized_candle = None
-        if (
-            self._current_candle
-            and candle_open_time >= self._current_candle["close_time_ms"]
-        ):
+        if self._current_candle and candle_open_time >= self._current_candle["close_time_ms"]:
             finalized_candle = self._finalize_candle()
 
         # Initialize or update current candle
@@ -188,9 +185,7 @@ def parse_timeframe_to_ms(timeframe: str) -> int:
     }
 
     if unit not in multipliers:
-        raise ValueError(
-            f"Invalid timeframe unit '{unit}' in {timeframe}. Use s/m/h/d."
-        )
+        raise ValueError(f"Invalid timeframe unit '{unit}' in {timeframe}. Use s/m/h/d.")
 
     return value * multipliers[unit]
 

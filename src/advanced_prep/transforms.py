@@ -344,9 +344,7 @@ def is_shooting_star(
     return (upper_wick / body_size) >= upper_wick_ratio and lower_wick < body_size
 
 
-def is_engulfing_bullish(
-    candle: ResampledCandleData, prev_candle: ResampledCandleData
-) -> bool:
+def is_engulfing_bullish(candle: ResampledCandleData, prev_candle: ResampledCandleData) -> bool:
     """
     Detect Bullish Engulfing pattern.
 
@@ -370,9 +368,7 @@ def is_engulfing_bullish(
     return curr_body_bottom <= prev_body_bottom and curr_body_top >= prev_body_top
 
 
-def is_engulfing_bearish(
-    candle: ResampledCandleData, prev_candle: ResampledCandleData
-) -> bool:
+def is_engulfing_bearish(candle: ResampledCandleData, prev_candle: ResampledCandleData) -> bool:
     """
     Detect Bearish Engulfing pattern.
 
@@ -480,9 +476,7 @@ def is_three_white_soldiers(
     """
     # All must be bullish
     if not (
-        is_bullish_candle(candle1)
-        and is_bullish_candle(candle2)
-        and is_bullish_candle(candle3)
+        is_bullish_candle(candle1) and is_bullish_candle(candle2) and is_bullish_candle(candle3)
     ):
         return False
 
@@ -515,9 +509,7 @@ def is_three_black_crows(
     """
     # All must be bearish
     if not (
-        is_bearish_candle(candle1)
-        and is_bearish_candle(candle2)
-        and is_bearish_candle(candle3)
+        is_bearish_candle(candle1) and is_bearish_candle(candle2) and is_bearish_candle(candle3)
     ):
         return False
 

@@ -188,9 +188,7 @@ class TestMultiTimeframePipeline:
             # Finalize by crossing boundary
             if i < 4:
                 next_time = 60000 * (i + 2)
-                pipeline.process_tick(
-                    create_test_tick(next_time, str(50000 + (i + 1) * 100))
-                )
+                pipeline.process_tick(create_test_tick(next_time, str(50000 + (i + 1) * 100)))
 
         history = pipeline.get_candle_history(60000, count=3)
         assert len(history) <= 3

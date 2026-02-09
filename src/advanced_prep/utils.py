@@ -8,9 +8,7 @@ from decimal import Decimal
 from typing import Any
 
 
-def safe_divide(
-    numerator: Decimal, denominator: Decimal, default: Decimal = Decimal(0)
-) -> Decimal:
+def safe_divide(numerator: Decimal, denominator: Decimal, default: Decimal = Decimal(0)) -> Decimal:
     """
     Safely divide, returning default if denominator is zero.
 

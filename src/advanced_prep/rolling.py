@@ -196,9 +196,7 @@ def compute_rolling_std(values: Sequence[Decimal], window: int) -> list[Decimal]
     for i in range(window, len(values) + 1):
         window_values = values[i - window : i]
         mean = Decimal(sum(window_values)) / Decimal(window)
-        variance = Decimal(sum((v - mean) ** 2 for v in window_values)) / Decimal(
-            window
-        )
+        variance = Decimal(sum((v - mean) ** 2 for v in window_values)) / Decimal(window)
         result.append(variance.sqrt() if variance > 0 else Decimal(0))
 
     return result

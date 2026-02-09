@@ -162,14 +162,10 @@ class MultiTimeframePipeline:
 
         # Update EMAs
         if tf_state.indicators.ema_fast:
-            tf_state.indicators.ema_fast = update_ema_streaming(
-                tf_state.indicators.ema_fast, close
-            )
+            tf_state.indicators.ema_fast = update_ema_streaming(tf_state.indicators.ema_fast, close)
 
         if tf_state.indicators.ema_slow:
-            tf_state.indicators.ema_slow = update_ema_streaming(
-                tf_state.indicators.ema_slow, close
-            )
+            tf_state.indicators.ema_slow = update_ema_streaming(tf_state.indicators.ema_slow, close)
 
         # Update ATR
         if tf_state.indicators.atr:
@@ -179,9 +175,7 @@ class MultiTimeframePipeline:
 
         # Update RSI
         if tf_state.indicators.rsi:
-            tf_state.indicators.rsi = update_rsi_streaming(
-                tf_state.indicators.rsi, close
-            )
+            tf_state.indicators.rsi = update_rsi_streaming(tf_state.indicators.rsi, close)
 
         # Update rolling window
         if tf_state.indicators.rolling_window:
@@ -226,9 +220,7 @@ class MultiTimeframePipeline:
         """
         return self._build_snapshot()
 
-    def get_candle_history(
-        self, timeframe_ms: int, count: int = 100
-    ) -> list[ResampledCandleData]:
+    def get_candle_history(self, timeframe_ms: int, count: int = 100) -> list[ResampledCandleData]:
         """
         Get candle history for a timeframe.
 

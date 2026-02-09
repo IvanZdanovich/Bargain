@@ -13,9 +13,7 @@ from typing import Any, Literal, TypedDict
 # === Enums as Literals ===
 Side = Literal["buy", "sell"]
 DataType = Literal["trade", "orderbook_snapshot", "orderbook_delta", "candle", "tick"]
-ProviderStatus = Literal[
-    "disconnected", "connecting", "connected", "error", "rate_limited"
-]
+ProviderStatus = Literal["disconnected", "connecting", "connected", "error", "rate_limited"]
 OperationMode = Literal["live", "historical", "replay"]
 
 # === Core Market Data Structures ===
@@ -138,9 +136,7 @@ class HistoricalRequestData(TypedDict):
 
 # === Event Types ===
 
-MarketDataRecord = (
-    TradeData | CandleData | TickData | OrderBookSnapshotData | OrderBookDeltaData
-)
+MarketDataRecord = TradeData | CandleData | TickData | OrderBookSnapshotData | OrderBookDeltaData
 
 
 class MarketEventData(TypedDict):

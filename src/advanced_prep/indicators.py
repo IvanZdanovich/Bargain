@@ -121,17 +121,15 @@ def compute_wma(values: Sequence[Decimal], period: int) -> list[Decimal]:
     result: list[Decimal] = []
     for i in range(period - 1, len(values)):
         window = values[i - period + 1 : i + 1]
-        wma = Decimal(
-            sum(w * v for w, v in zip(weights, window, strict=True))
-        ) / Decimal(weight_sum)
+        wma = Decimal(sum(w * v for w, v in zip(weights, window, strict=True))) / Decimal(
+            weight_sum
+        )
         result.append(wma)
 
     return result
 
 
-def compute_vwap_batch(
-    prices: Sequence[Decimal], volumes: Sequence[Decimal]
-) -> list[Decimal]:
+def compute_vwap_batch(prices: Sequence[Decimal], volumes: Sequence[Decimal]) -> list[Decimal]:
     """
     Compute cumulative VWAP (batch).
 
@@ -158,9 +156,7 @@ def compute_vwap_batch(
     return result
 
 
-def compute_true_range(
-    high: Decimal, low: Decimal, prev_close: Decimal | None
-) -> Decimal:
+def compute_true_range(high: Decimal, low: Decimal, prev_close: Decimal | None) -> Decimal:
     """
     Compute True Range for single candle.
 
@@ -281,9 +277,7 @@ def init_atr_state(period: int) -> ATRState:
     )
 
 
-def update_atr_streaming(
-    state: ATRState, high: Decimal, low: Decimal, close: Decimal
-) -> ATRState:
+def update_atr_streaming(state: ATRState, high: Decimal, low: Decimal, close: Decimal) -> ATRState:
     """
     Update ATR state with new candle (streaming).
 
@@ -413,9 +407,7 @@ def update_rsi_streaming(state: RSIState, new_price: Decimal) -> RSIState:
 # === Volatility Indicators ===
 
 
-def compute_rolling_volatility(
-    returns: Sequence[Decimal], period: int
-) -> list[Decimal]:
+def compute_rolling_volatility(returns: Sequence[Decimal], period: int) -> list[Decimal]:
     """
     Compute rolling volatility (standard deviation of returns).
 
