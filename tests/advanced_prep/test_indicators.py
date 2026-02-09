@@ -4,23 +4,15 @@ Tests for indicator computations.
 
 from decimal import Decimal
 
-import pytest
-
-from src.advanced_prep.indicators import (
-    compute_atr_batch,
-    compute_ema,
-    compute_log_return,
-    compute_percentage_change,
-    compute_rolling_volatility,
-    compute_sma,
-    compute_true_range,
-    compute_vwap_batch,
-    compute_wma,
-    init_atr_state,
-    init_ema_state,
-    update_atr_streaming,
-    update_ema_streaming,
-)
+from src.advanced_prep.indicators import (compute_atr_batch, compute_ema,
+                                          compute_log_return,
+                                          compute_percentage_change,
+                                          compute_rolling_volatility,
+                                          compute_sma, compute_true_range,
+                                          compute_vwap_batch, compute_wma,
+                                          init_atr_state, init_ema_state,
+                                          update_atr_streaming,
+                                          update_ema_streaming)
 
 
 class TestSMA:

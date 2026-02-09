@@ -6,11 +6,8 @@ from decimal import Decimal
 
 import pytest
 
-from src.advanced_prep.resampling import (
-    CandleResampler,
-    format_timeframe,
-    parse_timeframe_to_ms,
-)
+from src.advanced_prep.resampling import (CandleResampler, format_timeframe,
+                                          parse_timeframe_to_ms)
 from src.types import TickData
 
 

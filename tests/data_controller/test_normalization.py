@@ -4,17 +4,14 @@ from decimal import Decimal
 
 import pytest
 
-from src.data_controller.normalization import (
-    denormalize_symbol,
-    normalize_side,
-    normalize_symbol,
-    to_decimal,
-    validate_orderbook_integrity,
-    validate_price,
-    validate_quantity,
-    validate_sequence,
-    validate_timestamp,
-)
+from src.data_controller.normalization import (denormalize_symbol,
+                                               normalize_side,
+                                               normalize_symbol, to_decimal,
+                                               validate_orderbook_integrity,
+                                               validate_price,
+                                               validate_quantity,
+                                               validate_sequence,
+                                               validate_timestamp)
 
 
 class TestToDecimal:

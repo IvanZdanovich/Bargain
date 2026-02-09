@@ -6,12 +6,8 @@ from decimal import Decimal
 
 import pytest
 
-from src.advanced_prep.rolling import (
-    RollingWindow,
-    compute_rolling_mean,
-    compute_rolling_std,
-    compute_z_score,
-)
+from src.advanced_prep.rolling import (RollingWindow, compute_rolling_mean,
+                                       compute_rolling_std, compute_z_score)
 
 
 class TestRollingWindow:

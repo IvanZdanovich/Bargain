@@ -134,3 +134,65 @@ Data Controller → Normalized Ticks → Advanced Prep → Strategy Engine
                     ↓                               ↓
               Heiken Ashi                     Multi-TF Snapshot
 ```
+
+---
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=src --cov-report=html
+
+# Run specific test file
+pytest tests/test_module.py
+
+# Run tests with verbose output
+pytest -v
+```
+
+### Linting
+
+```bash
+# Check code with flake8
+flake8 src tests
+
+# Check code with pylint
+pylint src tests
+
+# Type checking with mypy
+mypy src tests
+```
+
+### Formatting
+
+Format code with black
+```bash
+black src tests
+```
+Check formatting without changes
+```bash
+black --check src tests
+```
+Sort imports with isort
+```bash
+isort src tests
+```
+Check import sorting
+```bash
+isort --check-only src tests
+```
+
+### All Checks
+
+Run all quality checks at once
+
+```bash
+black src tests && isort src tests && flake8 src tests && mypy src tests && pytest
+```
+
+

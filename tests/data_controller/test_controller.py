@@ -4,12 +4,10 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.data_controller.controller import (
-    create_controller,
-    get_all_provider_health,
-    get_provider_health,
-    get_provider_status,
-)
+from src.data_controller.controller import (create_controller,
+                                            get_all_provider_health,
+                                            get_provider_health,
+                                            get_provider_status)
 from src.types import HandlersData, ProviderConfigData
 
 

@@ -21,6 +21,8 @@ types-PyYAML>=6.0.0  # Type stubs for PyYAML
 # Linting and formatting
 ruff>=0.1.6
 black>=23.11.0
+isort>=5.12.0
+flake8>=6.0.0
 
 # Optional: Redis for hot storage
 # redis>=5.0.0

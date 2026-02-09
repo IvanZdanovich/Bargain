@@ -4,13 +4,8 @@ Tests for multi-timeframe pipeline.
 
 from decimal import Decimal
 
-import pytest
-
-from src.advanced_prep.pipelines import (
-    MultiTimeframePipeline,
-    PipelineConfig,
-    create_pipeline,
-)
+from src.advanced_prep.pipelines import (MultiTimeframePipeline,
+                                         PipelineConfig, create_pipeline)
 from src.types import MultiTimeframeSnapshotData, ResampledCandleData, TickData
 
 

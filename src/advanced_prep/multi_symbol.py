@@ -9,13 +9,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from src.advanced_prep.pipelines import MultiTimeframePipeline, PipelineConfig
-from src.types import (
-    CandleEmitFn,
-    MultiTimeframeReadyFn,
-    MultiTimeframeSnapshotData,
-    ResampledCandleData,
-    TickData,
-)
+from src.types import (CandleEmitFn, MultiTimeframeReadyFn,
+                       MultiTimeframeSnapshotData, ResampledCandleData,
+                       TickData)
 
 
 @dataclass

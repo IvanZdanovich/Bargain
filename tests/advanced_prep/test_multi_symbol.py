@@ -4,13 +4,9 @@ Tests for multi-symbol pipeline functionality.
 
 from decimal import Decimal
 
-import pytest
-
-from src.advanced_prep.multi_symbol import (
-    MultiSymbolConfig,
-    MultiSymbolPipeline,
-    create_multi_symbol_pipeline,
-)
+from src.advanced_prep.multi_symbol import (MultiSymbolConfig,
+                                            MultiSymbolPipeline,
+                                            create_multi_symbol_pipeline)
 from src.types import TickData
 
 
