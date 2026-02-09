@@ -136,8 +136,12 @@ def register_default_indicators() -> None:
     Side effects:
         Populates global registry with standard indicators.
     """
-    from src.advanced_prep.indicators import (compute_atr_batch, compute_ema,
-                                              compute_sma, compute_wma)
+    from src.advanced_prep.indicators import (
+        compute_atr_batch,
+        compute_ema,
+        compute_sma,
+        compute_wma,
+    )
 
     indicators = [
         IndicatorMetadata(

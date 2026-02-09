@@ -3,11 +3,18 @@
 import os
 from unittest.mock import patch
 
-from src.config import (get_binance_config, get_config,
-                        get_normalization_config, get_provider_defaults,
-                        get_reliability_config, get_schema_version, get_secret,
-                        get_storage_defaults, get_validation_config,
-                        reload_config)
+from src.config import (
+    get_binance_config,
+    get_config,
+    get_normalization_config,
+    get_provider_defaults,
+    get_reliability_config,
+    get_schema_version,
+    get_secret,
+    get_storage_defaults,
+    get_validation_config,
+    reload_config,
+)
 
 
 class TestGetConfig:

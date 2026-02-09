@@ -4,15 +4,19 @@ Tests for RSI indicator and candle pattern detection.
 
 from decimal import Decimal
 
-from src.advanced_prep.indicators import (compute_rsi, init_rsi_state,
-                                          update_rsi_streaming)
-from src.advanced_prep.transforms import (detect_candle_pattern, is_doji,
-                                          is_engulfing_bearish,
-                                          is_engulfing_bullish,
-                                          is_evening_star, is_hammer,
-                                          is_morning_star, is_shooting_star,
-                                          is_three_black_crows,
-                                          is_three_white_soldiers)
+from src.advanced_prep.indicators import compute_rsi, init_rsi_state, update_rsi_streaming
+from src.advanced_prep.transforms import (
+    detect_candle_pattern,
+    is_doji,
+    is_engulfing_bearish,
+    is_engulfing_bullish,
+    is_evening_star,
+    is_hammer,
+    is_morning_star,
+    is_shooting_star,
+    is_three_black_crows,
+    is_three_white_soldiers,
+)
 from src.types import ResampledCandleData
 
 

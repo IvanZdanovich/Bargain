@@ -9,19 +9,37 @@ import logging
 from collections.abc import AsyncIterator, Sequence
 from typing import Any, cast
 
-from src.data_controller.event_bus import (EVENT_CANDLE, EVENT_ERROR,
-                                           EVENT_STATUS_CHANGE, EVENT_TICK,
-                                           EVENT_TRADE, create_event_bus,
-                                           emit_event)
+from src.data_controller.event_bus import (
+    EVENT_CANDLE,
+    EVENT_ERROR,
+    EVENT_STATUS_CHANGE,
+    EVENT_TICK,
+    EVENT_TRADE,
+    create_event_bus,
+    emit_event,
+)
 from src.data_controller.providers import binance
-from src.data_controller.storage import (buffer_record, create_storage_buffer,
-                                         start_storage_buffer,
-                                         stop_storage_buffer)
-from src.types import (CandleHandlerFn, EventBusConfigData, HandlersData,
-                       HistoricalRequestData, MarketDataRecord,
-                       OrderBookSnapshotData, ProviderConfigData,
-                       ProviderHealthData, ProviderStatus, StorageConfigData,
-                       SubscriptionConfigData, TickHandlerFn, TradeHandlerFn)
+from src.data_controller.storage import (
+    buffer_record,
+    create_storage_buffer,
+    start_storage_buffer,
+    stop_storage_buffer,
+)
+from src.types import (
+    CandleHandlerFn,
+    EventBusConfigData,
+    HandlersData,
+    HistoricalRequestData,
+    MarketDataRecord,
+    OrderBookSnapshotData,
+    ProviderConfigData,
+    ProviderHealthData,
+    ProviderStatus,
+    StorageConfigData,
+    SubscriptionConfigData,
+    TickHandlerFn,
+    TradeHandlerFn,
+)
 
 logger = logging.getLogger(__name__)
 

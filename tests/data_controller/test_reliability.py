@@ -5,12 +5,14 @@ import time
 
 import pytest
 
-from src.data_controller.reliability import (CircuitBreaker,
-                                             acquire_rate_limit,
-                                             calculate_latency_ms,
-                                             create_rate_limiter,
-                                             validate_data_integrity,
-                                             with_exponential_backoff)
+from src.data_controller.reliability import (
+    CircuitBreaker,
+    acquire_rate_limit,
+    calculate_latency_ms,
+    create_rate_limiter,
+    validate_data_integrity,
+    with_exponential_backoff,
+)
 
 
 class TestExponentialBackoff:

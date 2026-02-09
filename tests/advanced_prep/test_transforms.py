@@ -4,17 +4,21 @@ Tests for transform functions.
 
 from decimal import Decimal
 
-from src.advanced_prep.transforms import (compute_candle_body_size,
-                                          compute_candle_range,
-                                          compute_candle_wick_sizes,
-                                          compute_heiken_ashi,
-                                          compute_log_returns_series,
-                                          compute_percentage_returns_series,
-                                          compute_pivot_point,
-                                          compute_support_resistance,
-                                          compute_typical_price,
-                                          is_bearish_candle, is_bullish_candle,
-                                          normalize_min_max, normalize_z_score)
+from src.advanced_prep.transforms import (
+    compute_candle_body_size,
+    compute_candle_range,
+    compute_candle_wick_sizes,
+    compute_heiken_ashi,
+    compute_log_returns_series,
+    compute_percentage_returns_series,
+    compute_pivot_point,
+    compute_support_resistance,
+    compute_typical_price,
+    is_bearish_candle,
+    is_bullish_candle,
+    normalize_min_max,
+    normalize_z_score,
+)
 from src.types import ResampledCandleData
 
 

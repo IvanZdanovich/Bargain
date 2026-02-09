@@ -158,11 +158,15 @@ pytest -v
 ### Linting
 
 ```bash
+# Check code with ruff (fast, comprehensive)
+ruff check src tests
+
+# Auto-fix ruff issues
+ruff check --fix src tests
+
 # Check code with flake8
 flake8 src tests
 
-# Check code with pylint
-pylint src tests
 
 # Type checking with mypy
 mypy src tests
@@ -170,29 +174,20 @@ mypy src tests
 
 ### Formatting
 
-Format code with black
 ```bash
+# Format code with black
 black src tests
-```
-Check formatting without changes
-```bash
+
+# Check formatting without changes
 black --check src tests
-```
-Sort imports with isort
-```bash
-isort src tests
-```
-Check import sorting
-```bash
-isort --check-only src tests
 ```
 
 ### All Checks
 
-Run all quality checks at once
-
 ```bash
-black src tests && isort src tests && flake8 src tests && mypy src tests && pytest
+# Run all quality checks at once (with auto-fix)
+ruff check --fix src tests && black src tests && flake8 src tests && mypy src tests && pytest
+
+# Or without auto-fixing
+black --check src tests && ruff check src tests && flake8 src tests && mypy src tests && pytest
 ```
-
-

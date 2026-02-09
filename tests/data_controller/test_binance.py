@@ -6,9 +6,13 @@ import pytest
 
 from src.config import get_schema_version
 from src.data_controller.providers.binance import (
-    create_binance_provider, parse_binance_candle, parse_binance_candle_rest,
-    parse_binance_orderbook_snapshot, parse_binance_ticker,
-    parse_binance_trade)
+    create_binance_provider,
+    parse_binance_candle,
+    parse_binance_candle_rest,
+    parse_binance_orderbook_snapshot,
+    parse_binance_ticker,
+    parse_binance_trade,
+)
 
 
 @pytest.fixture

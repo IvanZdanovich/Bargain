@@ -4,9 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from src.data_controller.replay import (create_replay_recorder, record_event,
-                                        replay_from_file, replay_from_records,
-                                        start_recording, stop_recording)
+from src.data_controller.replay import (
+    create_replay_recorder,
+    record_event,
+    replay_from_file,
+    replay_from_records,
+    start_recording,
+    stop_recording,
+)
 from src.types import HandlersData
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
