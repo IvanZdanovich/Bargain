@@ -64,7 +64,8 @@ Follow these rules to produce code that is **type safe**, **class minimal**, **f
 
 ## Naming Conventions
 
-- Follow [docs/naming-conventions.md](/docs/naming-conventions.md) for all files, types, functions, variables, constants,
+- Follow [docs/naming-conventions.md](/docs/naming-conventions.md) for all files, types, functions, variables,
+  constants,
   and folders.
 
 ---
@@ -133,4 +134,69 @@ Follow these rules to produce code that is **type safe**, **class minimal**, **f
 - [ ] `mypy` passes with `--strict`
 - [ ] Secrets not committed; `.env.example` present
 - [ ] Documentation not generated unless requested
+
+## Development
+
+### Running Tests
+
+Run all tests
+
+```bash
+pytest
+```
+
+Run with coverage
+
+```bash
+pytest --cov=src --cov-report=html
+```
+
+Run specific test file
+
+```bash
+pytest tests/test_module.py
+```
+
+Run tests with verbose output
+
+```bash
+pytest -v
+```
+
+### Linting
+
+```bash
+# Check code with ruff (fast, comprehensive linter and import sorter)
+ruff check src tests
+
+# Auto-fix ruff issues
+ruff check --fix src tests
+
+# Check code with flake8
+flake8 src tests
+
+
+# Type checking with mypy
+mypy src tests
+```
+
+### Formatting
+
+```bash
+# Format code with black
+black src tests
+
+# Check formatting without changes
+black --check src tests
+```
+
+### All Checks
+
+```bash
+# Run all quality checks at once (with auto-fix)
+ruff check --fix src tests && black src tests && flake8 src tests && mypy src tests && pytest
+
+# Or without auto-fixing
+black --check src tests && ruff check src tests && flake8 src tests && mypy src tests && pytest
+```
 

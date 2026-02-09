@@ -11,10 +11,7 @@ from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any, cast
 
-from src.types import (
-    DataType,
-    HandlersData,
-)
+from src.types import DataType, HandlersData
 
 logger = logging.getLogger(__name__)
 

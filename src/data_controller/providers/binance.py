@@ -18,16 +18,8 @@ except ImportError:
 
 import contextlib
 
-from src.config import (
-    get_binance_config,
-    get_provider_defaults,
-    get_schema_version,
-)
-from src.data_controller.normalization import (
-    denormalize_symbol,
-    normalize_symbol,
-    to_decimal,
-)
+from src.config import get_binance_config, get_provider_defaults, get_schema_version
+from src.data_controller.normalization import denormalize_symbol, normalize_symbol, to_decimal
 from src.data_controller.reliability import (
     acquire_rate_limit,
     create_rate_limiter,
